@@ -84,7 +84,7 @@ bool SimpleCfg::ParseObj(CharIter start, CharIter end, json &js)
 		{
 			return true;//没有成员了
 		}
-		Log("find member %s = %s", name.c_str(), value.c_str());
+		L_DEBUG("find member %s = %s", name.c_str(), value.c_str());
 		//到这里， cur 已经指向下一个成员字符串开头
 		if (value[0] == '{')
 		{
@@ -111,9 +111,9 @@ bool SimpleCfg::ParseObj(CharIter start, CharIter end, json &js)
 			{
 				return false;
 			}
-			Log("ParseBaseValue result js=%s", Js2String(v).c_str());
+			L_DEBUG("ParseBaseValue result js=%s", Js2String(v).c_str());
 			js[name] = v;
-			Log("parent result js=%s", Js2String(js).c_str());
+			L_DEBUG("parent result js=%s", Js2String(js).c_str());
 		}
 	}
 	Log("error, ParseObj endless loop");
@@ -144,8 +144,9 @@ bool SimpleCfg::ParseArray(CharIter start, CharIter end, json &js)
 		{
 			return true;//没有元素了
 		}
-		Log("find elment = %s", value.c_str());
+		L_DEBUG("find elment = %s", value.c_str());
 		//到这里， cur 已经指向下一个成员字符串开头
+
 		if (value[0] == '{')
 		{
 			json v;
@@ -178,16 +179,76 @@ bool SimpleCfg::ParseArray(CharIter start, CharIter end, json &js)
 	return false;
 }
 
-
-void SimpleCfg::CheckAndJumpComment(CharIter &cur, CharIter end)
+bool SimpleCfg::CheckAndJumpSplit(CharIter &cur, CharIter end)
 {
+	if (cur == end)
+	{
+		return false;
+	}
+	//跳过分隔符
+	bool isFind = false;
+	for (uint32 n = 0; n < 50000; ++n)
+	{
+		if (IsSplitChar(*cur))
+		{
+			isFind = true;
+			cur++; 	
+			if (cur == end)
+			{
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+		if (n >= 50000 - 1)
+		{
+			L_DEBUG("error, CheckAndJumpSplit endless loop ");
+			return false;
+		}
+	}
+	return isFind;
+}
+
+void SimpleCfg::CheckAndJumpSplitComment(CharIter &cur, CharIter end)
+{
+	if (cur == end)
+	{
+		return;
+	}
+	//auto start = cur;
+	for (uint32 n = 0; n < 50000; ++n)
+	{
+		if (CheckAndJumpSplit(cur, end))
+		{
+			continue;
+		}
+		if (CheckAndJumpComment(cur, end))
+		{
+			continue;
+		}
+		break;
+		if (n >= 50000 - 1)
+		{
+			L_DEBUG("error, CheckAndJumpSplitComment endless loop  %d [%s] [%s]", n, &*start, &*cur);
+			return;
+		}
+	}
+}
+
+bool SimpleCfg::CheckAndJumpComment(CharIter &cur, CharIter end)
+{
+	if (cur == end)
+	{
+		return false;
+	}
 	//cur 跳过注释 "//"
 	if ('/' == *cur && cur != end)
 	{
-		cur++;
 		if ('/' != *(cur))
 		{
-			return;
+			return false;
 		}
 
 		//有注释 "//"
@@ -196,11 +257,14 @@ void SimpleCfg::CheckAndJumpComment(CharIter &cur, CharIter end)
 		if (it == end)
 		{
 			cur = end;
-			return;
+			L_DEBUG("jump to =%s", &*cur);
+			return true;
 		}
 		cur = it + 1;
-		return;
+		L_DEBUG("jump to =%s", &*cur);
+		return true;
 	}
+	return false;
 }
 
 //解析基础值，
@@ -214,7 +278,7 @@ bool SimpleCfg::ParseBaseValue(const string &value, json &js)
 	}
 	try
 	{
-		Log("ParseBaseValue %s", value.c_str());
+		L_DEBUG("ParseBaseValue %s", value.c_str());
 		//大写库不支持，特殊处理
 		{
 			if (value == "TRUE"
@@ -346,7 +410,7 @@ bool SimpleCfg::Find1stMemStr(CharIter &cur, const CharIter end , string &name, 
 			CheckAndJumpComment(cur, end);
 			if (cur == end)
 			{
-				Log("no member found.  n=%d", n);
+				//Log("no member found. n=%d", n);
 				return false;
 			}
 
@@ -444,42 +508,37 @@ bool SimpleCfg::Find1stElment(CharIter &cur, const CharIter end, std::string &va
 		CheckAndJumpComment(cur, end);
 		if (cur == end)
 		{
-			Log("no member found. ");
+			L_DEBUG("no member found. ");
 			return false;
 		}
 	}
 
 	//跳过分隔符
-	for (uint32 n = 0; n < 50000; ++n)
-	{
-		if (IsSplitChar(*cur) )
-		{
-			cur++;
-		}
-		else
-		{
-			break;
-		}
-		if (n>= 50000-1)
-		{
-			Log("error, Find1stElment endless loop ");
-			return false;
-		}
-	}
+	//CheckAndJumpSplit(cur, end);
 
+	//CheckAndJumpComment(cur, end);
+
+	CheckAndJumpSplitComment(cur, end);
 	//找对象值
-	Log("FindValueStr cur=%s", &*cur);
+	if (cur == end)
+	{
+		L_DEBUG("FindValueStr end with comment");
+		return false;
+	}
 	return FindValueStr(cur, end, value);
 }
 
 bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &value)
 {
+	L_DEBUG("FindValueStr cur=%s", &*cur);
 	if (cur == end)
 	{
+		Log("error para");
 		return false;
 	}
 	CharIter value_start = cur;
 
+	CheckAndJumpSplitComment(cur, end);
 	//找对象值结束位置
 	if (*cur == '{' || *cur == '[')
 	{
@@ -523,18 +582,18 @@ bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &val
 			return false;
 		}
 		value.assign(value_start, it + 1);
-		Log("it=%s", (const char *)&(*it));
+		L_DEBUG("it=%s", (const char *)&(*it));
 		cur = it;
 		cur++;
-		Log("cur=%s", (const char *)&(*cur));
-		Log("FindMemStr, find obj end value=%s, cur=%s", (const char *)&(*value_start), (const char *)&(*cur));
+		L_DEBUG("cur=%s", (const char *)&(*cur));
+		L_DEBUG("FindMemStr, find obj end value=%s, cur=%s", (const char *)&(*value_start), (const char *)&(*cur));
 		return true;
 	}
 	else//找基本值结束位置
 	{
 		auto IsEndSymbol = [&](const char c)
 		{
-			if ('}' == c || ']' == c)
+			if ('}' == c || ']' == c || '/' == c)
 			{
 				return true;
 			}

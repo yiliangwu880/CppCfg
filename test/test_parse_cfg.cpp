@@ -74,6 +74,7 @@ namespace{
 			const char *TEST_STR = "n1=3";
 			SimpleCfg js;
 			js.ParseSimpleCfg(TEST_STR);
+			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["n1"] == 3);
 		}
 		{
@@ -208,6 +209,38 @@ a:[1,2, :true,
 	{a=3.3,b:"abc"}
 ]
 b=3
+)";
+			SimpleCfg js;
+			js.ParseSimpleCfg(TEST_STR);
+			UNIT_INFO("js=%s", js.c_str());
+			UNIT_ASSERT(js["b"] == 3);
+			UNIT_ASSERT(js["a"][0] == 1);
+			UNIT_ASSERT(js["a"][1] == 2);
+			UNIT_ASSERT(js["a"][2] == true);
+			UNIT_ASSERT(js["a"][3] == "ab3c");
+			UNIT_ASSERT(js["a"][4] == 'a');
+			UNIT_ASSERT(js["a"][5][0] == 11);
+			UNIT_ASSERT(js["a"][5][1] == 22);
+			UNIT_ASSERT(js["a"][6]["a"] == 3.3);
+			UNIT_ASSERT(js["a"][6]["b"] == "abc");
+		}
+		{//≤‚ ‘ÀÊ“‚∏Ò Ω£¨◊¢ Õ
+			const char *TEST_STR = R"(
+
+//◊¢ Õ
+a:[1,2, :true,	
+	"ab3c", 'a'
+	[11,22],
+//abad, dkfj
+	{
+//abc
+a=3.3, //◊¢ Õ
+b:"abc",;//dd
+//◊¢ Õ
+}
+]
+b=3//a
+//abb
 )";
 			SimpleCfg js;
 			js.ParseSimpleCfg(TEST_STR);

@@ -1,3 +1,9 @@
+/*
+从字符串解析出配置信息
+存为json对象
+分析非法格式（比如数组元素类型不一致）
+*/
+
 #pragma once
 #include "stdafx.h"
 
@@ -27,7 +33,10 @@ private:
 	//@cur [in/out] 
 	//		输入 检查开始位置。
 	//		输出 如果开始位置的字符串是是注释，跳过注释，指向正常语法字符。 最后一行注释，就跳到字符串尾端 string::end();
-	void CheckAndJumpComment(CharIter &cur, CharIter end);
+	//return true表示操作了跳过
+	bool CheckAndJumpComment(CharIter &cur, CharIter end);
+	bool CheckAndJumpSplit(CharIter &cur, CharIter end);
+	void CheckAndJumpSplitComment(CharIter &cur, CharIter end);
 
 	//解析基础值，
 	//@js [out] 值赋值给js["base"]=xx

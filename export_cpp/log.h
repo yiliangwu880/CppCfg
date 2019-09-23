@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "version.h"
 
-#define PRINT_DEBUG_LOG  //打印调试日志
+//#define PRINT_DEBUG_LOG  //打印调试日志
 
 
 
