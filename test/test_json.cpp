@@ -1,4 +1,4 @@
-// testPrj.cpp : 定义控制台应用程序的入口点。
+// 测试 json.hpp 如何使用
 //
 
 #include "unit_test.h"
@@ -83,5 +83,39 @@ UNITTEST(Json)
 		js.push_back(v);
 		//js=[1,3] 
 		UNIT_INFO("js=%s", Js2String(js).c_str());
-	} 
+	}
+	{
+		json js;
+		js["n"] = 1;
+		json::iterator it = js.begin();
+		UNIT_INFO("key=%s", it.key().c_str());
+	}
+	{
+		json js = json::parse(
+			R"(
+				{
+					"happy":1,
+					"pi" : 33,
+					"a1" : 22
+					
+				}
+				)"
+		);
+		json dynArray = { "a1", 1 };
+		for (auto& el : js.items())
+		{
+			UNIT_INFO("find  key=%s", el.key().c_str());
+			for (auto& v : dynArray)
+			if (v== el.key())
+			{
+				UNIT_INFO("find in dynArray. key=%s", el.key().c_str());
+				continue; //忽略动态对象
+			}
+		}
+		for (auto& el : dynArray.items())
+		{
+			UNIT_INFO("find  key=%s", el.key().c_str());//key= "0", key= "1"
+		}
+	}
+
 }

@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "version.h"
 
-//#define PRINT_DEBUG_LOG  //打印调试日志
+#define PRINT_DEBUG_LOG  //打印调试日志
 
 
 
@@ -22,6 +22,7 @@
 
 //打印日志
 void Log(const char * pattern, ...);
+void EnableLog(bool enable_log);
 
 #ifdef PRINT_DEBUG_LOG
 #define L_DEBUG(x, ...)   Log(x, ##__VA_ARGS__)

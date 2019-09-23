@@ -1,5 +1,4 @@
-// testPrj.cpp : 定义控制台应用程序的入口点。
-//
+//测试 SimpleCfg 解析字符串
 
 #include "unit_test.h"
 #include <sstream>
@@ -59,7 +58,7 @@ namespace{
 	{
 		{
 			const char *TEST_STR = R"(
-				{
+				
 					n1 : 31
 					n2 4
 				)";
@@ -97,7 +96,7 @@ namespace{
 		}
 		{
 			const char *TEST_STR = R"(
-				{
+				
 					n1 : 31,
 					n2 4
 				)";
@@ -110,7 +109,7 @@ namespace{
 		}
 		{
 			const char *TEST_STR = R"(
-				{
+				
 					n1 : 3.1
 					n2 4
 				)";
@@ -128,19 +127,18 @@ namespace{
 
 		{
 			const char *TEST_STR = R"(
-				{
-					n1 : 31
-					n2 4}
+					n1 : 331
+					n2= 4 
 				)";
 			SimpleCfg js;
 			js.ParseSimpleCfg(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
-			UNIT_ASSERT(js["n1"] == 31);
+			UNIT_ASSERT(js["n1"] == 331);
 			UNIT_ASSERT(js["n2"] == 4);
 		}
 		{
-			const char *TEST_STR = "{n1 : 31 n2 4}";
+			const char *TEST_STR = "n1 : 31 n2 4";
 			SimpleCfg js;
 			js.ParseSimpleCfg(TEST_STR);
 
@@ -190,7 +188,7 @@ namespace{
 		}
 		//数组
 		{
-			const char *TEST_STR = "{a=[1,2, :true,		\"ab3c\", \'a\']}";
+			const char *TEST_STR = "a=[1,2, :true,		\"ab3c\", \'a\']";
 			SimpleCfg js;
 			js.ParseSimpleCfg(TEST_STR);
 			UNIT_INFO("js=%s", js.c_str());
@@ -205,7 +203,7 @@ namespace{
 
 a:[1,2, :true,	
 	"ab3c", 'a'
-	[11,22],
+	[11,22, "abb"],
 	{a=3.3,b:"abc"}
 ]
 b=3
@@ -221,6 +219,7 @@ b=3
 			UNIT_ASSERT(js["a"][4] == 'a');
 			UNIT_ASSERT(js["a"][5][0] == 11);
 			UNIT_ASSERT(js["a"][5][1] == 22);
+			UNIT_ASSERT(js["a"][5][2] == "abb");
 			UNIT_ASSERT(js["a"][6]["a"] == 3.3);
 			UNIT_ASSERT(js["a"][6]["b"] == "abc");
 		}
@@ -258,6 +257,62 @@ b=3//a
 		}
 
 	}
+
+	void testDynamic()
+	{
+		{//测试随意格式，注释
+			const char *TEST_STR = R"(
+//注释
+a:[1,2, :true,	
+	"ab3c", 'a'
+	[11,22],
+//abad, dkfj
+	{
+//abc
+a=3.3, //注释
+b:"abc",;//dd
+//注释
+}
+]
+b=3//a
+//abb
+	dynamic dyn1 = 1
+	dynamic dyn2 = { a="a",b=2, dynamic b1 = [1,true] }
+	dynamic dyn3 = ["a", 2]
+	dynamic dyn4 = ["a",  { b = 1,b2=1,c=[1,2] }]
+)";
+
+	/*	
+
+*/
+			SimpleCfg js;
+			js.ParseSimpleCfg(TEST_STR);
+			UNIT_INFO("js=%s", js.c_str());
+
+			UNIT_ASSERT(js["dyn1"] == 1);
+			UNIT_ASSERT(js["dynamic"][0] == "dyn1");
+			UNIT_ASSERT(js["dynamic"][1] == "dyn2");
+			UNIT_ASSERT(js["dynamic"][2] == "dyn3");
+			UNIT_ASSERT(js["dynamic"][3] == "dyn4");
+
+			UNIT_ASSERT(js["dyn4"][1]["c"][0] == 1);
+
+			UNIT_ASSERT(js["dyn2"]["dynamic"][0] == "b1");
+
+
+
+			UNIT_ASSERT(js["b"] == 3);
+			UNIT_ASSERT(js["a"][0] == 1);
+			UNIT_ASSERT(js["a"][1] == 2);
+			UNIT_ASSERT(js["a"][2] == true);
+			UNIT_ASSERT(js["a"][3] == "ab3c");
+			UNIT_ASSERT(js["a"][4] == 'a');
+			UNIT_ASSERT(js["a"][5][0] == 11);
+			UNIT_ASSERT(js["a"][5][1] == 22);
+			UNIT_ASSERT(js["a"][6]["a"] == 3.3);
+			UNIT_ASSERT(js["a"][6]["b"] == "abc");
+		}
+	}
 }//namespace
 
 //测试json接口如何使用
@@ -265,4 +320,6 @@ UNITTEST(parse_cfg)
 {
 	t1();
 	testObjArray();
+	testDynamic();
+
 }

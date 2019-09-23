@@ -136,11 +136,11 @@ void BuildCppFile(const char *fileName)
 
 	//cfg to cpp file
 	string cpp_str;
-	if (!js.BuildCppCfg(cpp_str))
-	{
-		Log("parse file fail. error struct");
-		return;
-	}
+	//if (!js.BuildCppCfg(cpp_str))
+	//{
+	//	Log("parse file fail. error struct");
+	//	return;
+	//}
 
 	//build file
 	string prefixName;
