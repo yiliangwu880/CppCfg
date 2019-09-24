@@ -1,18 +1,11 @@
 // testPrj.cpp : 定义控制台应用程序的入口点。
 //
 
-#include "unit_test.h"
-#include <sstream>
-#include "json.hpp"
-#include <exception>
+//#include "unit_test.h"
+//#include <sstream>
+//#include "json.hpp"
+//#include <exception>
 
-#include <string>
-#include "json.hpp"
-#include <iostream>
-#include <fstream>
-#include <locale>
-#include <stdio.h>
-#include <stdarg.h>
 
 using uint16 = unsigned short;
 using uint32 = unsigned int;
@@ -22,14 +15,14 @@ using uint8 = unsigned char;
 using int32 = int;
 
 using namespace std;
-using json = nlohmann::json;
+//using json = nlohmann::json;
 
 
 
-int main(int argc, char* argv[])
-{
-	UnitTestMgr::Obj().Start();
-	return 0;
-}
+//int main(int argc, char* argv[])
+//{
+//	UnitTestMgr::Obj().Start();
+//	return 0;
+//}
 
 

@@ -95,7 +95,8 @@ private:
 	static bool BuildMethod(const nlohmann::json &js, std::string &cpp_str);
 	//根据json,生成成员赋值列表
 	//@preName 前缀名， 比如： a.ab.c[0]
-	static bool BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std::string preName);
+	//@preName_js 前缀名， 比如： a["ab"]["c"][0]
+	static bool BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std::string preName, std::string preName_js);
 	//根据json, 生成子类和成员
 	//比如:js格式： {n1=3,n2={a=3}}
 	//生成 uint32 n1; struct n2{uint32 a;};

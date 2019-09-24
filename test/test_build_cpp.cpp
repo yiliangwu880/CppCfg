@@ -28,7 +28,12 @@ namespace {
 		}
 		string cpp_str;
 		JsToCpp::Build(js, "MyCfg", cpp_str);
-		UNIT_INFO("[%s]", cpp_str.c_str());
+
+		string s1(cpp_str.begin(), cpp_str.begin() + cpp_str.size() / 2);
+		string s2(cpp_str.begin() + cpp_str.size() / 2, cpp_str.end());
+
+		UNIT_INFO("[%s", s1.c_str());//太长，分开2部分
+		UNIT_INFO("%s]", s2.c_str());
 	}
 	void test_error()
 	{
@@ -170,6 +175,7 @@ namespace {
 		)";
 			PrintClass(TEST_STR);
 		}
+
 
 
 	}

@@ -723,6 +723,7 @@ bool SimpleCfg::IsSplitChar(char c)
 
 bool JsToCpp::Build(const nlohmann::json &js, const std::string &class_name, std::string &cpp_str)
 {
+	L_DEBUG("JsToCpp::Build %s", js.dump().c_str());
 	if (!IsEnableObj(js))
 	{
 		return false;
@@ -827,13 +828,13 @@ bool JsToCpp::BuildMethod(const nlohmann::json &js, std::string &cpp_str)
 }
 )";
 	string assign_str;
-	BuildAssignMem(js, assign_str, "");
+	BuildAssignMem(js, assign_str, "", "js");
 
 	cpp_str = START_STR + assign_str + END_STR;
 	return true;
 }
 
-bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std::string preName)
+bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std::string preName, std::string preName_js)
 {
 	//build member assign
 	const string TAB = "			";
@@ -849,22 +850,18 @@ bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std
 
 	for (auto &mem : js.items())
 	{
-		//build dynamic obj
+		if (mem.key() == SimpleCfg::DynamicStr)
 		{
-			if (mem.key() == SimpleCfg::DynamicStr)
+			continue;
+		}
+		//build dynamic obj
+		if (nullptr != dynArray)
+		{
+			L_DEBUG("find key %s", mem.key().c_str());
+			if (-1 != FindValueInArray(*dynArray, mem.key()))
 			{
+				cpp_str += TAB + preName + mem.key() + " = " + preName_js + "[\"" + mem.key() + "\"].dump().c_str();\n";
 				continue;
-			}
-			if (nullptr != dynArray)
-			{
-				L_DEBUG("find key %s", mem.key().c_str());
-				if (-1 != FindValueInArray(*dynArray, mem.key()))
-				{
-					cpp_str += TAB + preName + mem.key() + " = R\"(\n"
-						+ TAB + "	" + string(mem.value().dump().c_str()) + "\n"
-						+ TAB + "	)\";\n";
-					continue;
-				}
 			}
 		}
 		
@@ -872,7 +869,7 @@ bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std
 		if (mem.value().is_object())
 		{
 			string str;
-			BuildAssignMem(mem.value(), str, preName + mem.key() + ".");
+			BuildAssignMem(mem.value(), str, preName + mem.key() + ".", preName_js + "[\""+ mem.key() +"\"]");
 			cpp_str += str;
 		}
 		else if (mem.value().is_array())//数组不能二维
@@ -889,18 +886,18 @@ bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std
 				if (el.is_object())
 				{
 					string str;
-					BuildAssignMem(el, str, preName + mem.key() + "[" + NumToStr(i) + "].");
+					BuildAssignMem(el, str, preName + mem.key() + "[" + NumToStr(i) + "].", preName_js + "[\"" + mem.key() + "\"]"+"[" + NumToStr(i) + "]");
 					cpp_str += str;
 				}
 				else
 				{
-					cpp_str += TAB + preName + mem.key() + "[" + NumToStr(i) + "]" + " = " + el.dump() + ";\n";
+					cpp_str += TAB + preName + mem.key() + "[" + NumToStr(i) + "]" + " = " + preName_js + "[\"" + mem.key() + "\"]"+"[" + NumToStr(i) + "]" + ";\n";
 				}
 			}
 		}
 		else
 		{
-			cpp_str += TAB + preName + mem.key() + " = " + mem.value().dump().c_str() + ";\n";
+			cpp_str += TAB + preName + mem.key() + " = " + preName_js+ "[\"" + mem.key() + "\"]" + ";\n";
 		}
 	}
 	return  true;
@@ -925,21 +922,19 @@ void JsToCpp::BuildSubClassAndMember(const nlohmann::json &js, string &str, stri
 	}
 	for (auto &mem : js.items())
 	{
-		//build dynamic obj
+		if (mem.key() == SimpleCfg::DynamicStr)
 		{
-			if (mem.key() == SimpleCfg::DynamicStr)
+			continue;
+		}
+		//build dynamic obj
+		if (nullptr != dynArray)
+		{
+			L_DEBUG("find key %s", mem.key().c_str());
+			if (-1 != FindValueInArray(*dynArray, mem.key()))
 			{
+				L_DEBUG("build dynamic");
+				mem_list += tab + "std::string" + string(" ") + mem.key() + ";\n";
 				continue;
-			}
-			if (nullptr != dynArray)
-			{
-				L_DEBUG("find key %s", mem.key().c_str());
-				if (-1 != FindValueInArray(*dynArray, mem.key()))
-				{
-					L_DEBUG("build dynamic");
-					mem_list += tab + "std::string" + string(" ") + mem.key() + ";\n";
-					continue;
-				}
 			}
 		}
 
