@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "version.h"
 #include "SimpleCfg.h"
-#include "log.h"
+#include "ExportCpp.h"
 
 using json = nlohmann::json;
 using namespace std;
 
 
+using namespace SimpleCfgLog;
 
 
 //管理输出cpp
@@ -121,6 +122,9 @@ void CfgFileNamePrefix(const string &file_name, string &prefix)
 void BuildCppFile(const char *fileName)
 {
 	Log("build file: %s", fileName);
+	string prefixName;
+	CfgFileNamePrefix(fileName, prefixName);
+
 	std::ifstream t(fileName);
 	std::string str((std::istreambuf_iterator<char>(t)),
 		std::istreambuf_iterator<char>());
@@ -128,7 +132,7 @@ void BuildCppFile(const char *fileName)
 
 
 	SimpleCfg js;
-	if (!js.ParseSimpleCfg(str))
+	if (!js.ParseStr(str))
 	{
 		Log("parse file fail.");
 		return;
@@ -136,21 +140,27 @@ void BuildCppFile(const char *fileName)
 
 	//cfg to cpp file
 	string cpp_str;
-	//if (!js.BuildCppCfg(cpp_str))
-	//{
-	//	Log("parse file fail. error struct");
-	//	return;
-	//}
+	if (!JsToCpp::Build(js, prefixName, cpp_str))
+	{
+		Log("build file fail. error struct");
+		return;
+	}
 
 	//build file
-	string prefixName;
-	CfgFileNamePrefix(fileName, prefixName);
+	//Log("result: %s", cpp_str.c_str());
+	Log("prefixName: %s", prefixName.c_str());
 	Str2File(prefixName + ".h", cpp_str);
 }
 
 int main(int argc, char* argv[]) 
 {
-	for (int i=0; i<argc; ++i)
+	EnableLog(true);
+	if (argc < 2)
+	{
+		Log("miss cfg file name. input example: export_cpp_cfg my_cfg.txt");
+		return 0;
+	}
+	for (int i=1; i<argc; ++i)
 	{
 		const char *fileName = argv[i];
 		BuildCppFile(fileName);

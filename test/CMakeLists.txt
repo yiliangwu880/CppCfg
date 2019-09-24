@@ -9,14 +9,15 @@ SET(PRJ_NAME "test")
 # include directories
 INCLUDE_DIRECTORIES(after  ${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(after  "../export_cpp/")
+INCLUDE_DIRECTORIES(after  "../com/")
 
 
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_SRCS 变量
 file(GLOB_RECURSE SRCS  ${PROJECT_SOURCE_DIR} "*.cpp")
 file(GLOB_RECURSE SRCS2  ${PROJECT_SOURCE_DIR} 
-"../export_cpp/SimpleCfg.cpp"
-"../export_cpp/log.cpp"
+"../export_cpp/ExportCpp.cpp"
+"../com/SimpleCfg.cpp"
 )
 #file(GLOB_RECURSE SRCS3  ${PROJECT_SOURCE_DIR} )
 

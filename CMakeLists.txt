@@ -51,5 +51,6 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 ADD_SUBDIRECTORY(export_cpp)
 ADD_SUBDIRECTORY(test)
+ADD_SUBDIRECTORY(sample)
 
 ##################################

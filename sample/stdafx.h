@@ -7,7 +7,6 @@
 #include <locale>
 #include <stdio.h>
 #include <stdarg.h>
-#include <algorithm>
 
 using uint16 = unsigned short;
 using uint32 = unsigned int;

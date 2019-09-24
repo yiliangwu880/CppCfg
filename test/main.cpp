@@ -8,12 +8,12 @@
 
 using namespace std;
 using json = nlohmann::json;
-
+using namespace SimpleCfgLog;
 
 
 int main(int argc, char* argv[])
 {
-
+	EnableLog(true);
 	UnitTestMgr::Obj().Start();
 	return 0;
 }

@@ -1,25 +1,37 @@
-#project name
-SET(Sample "Sample")
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8) #cmake最低版本需求，不加入此行会受到警告信息
-PROJECT(${Sample}) #项目名称　　
-#INCLUDE_DIRECTORIES(system ${PROJECT_SOURCE_DIR}/../lib)
-#
-## lib directories
-#LINK_DIRECTORIES(
-#
-#  #项目引用第三方库
-#  ${PROJECT_SOURCE_DIR}/../lib/google/lib64
-#  
-#  #系统目录
-#  /usr/local/lib
-#  /use/lib
-#)
+# CMake 最低版本号要求
+cmake_minimum_required (VERSION 2.8)
 
-# 源文件搜索
-FILE(GLOB_RECURSE SourceFiles 
-        "${PROJECT_SOURCE_DIR}/*.cpp" "${PROJECT_SOURCE_DIR}/*.cc") 
-        
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall -pthread")
-ADD_EXECUTABLE(${Sample} ${SourceFiles}) 
+# 项目信息
+SET(PRJ_NAME "sample")
+project (${PRJ_NAME} CXX)
+
+
+# include directories
+INCLUDE_DIRECTORIES(after  ${PROJECT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(after  "../com/")
+
+
+# 查找当前目录下的所有源文件
+# 并将名称保存到 DIR_SRCS 变量
+file(GLOB_RECURSE SRCS  ${PROJECT_SOURCE_DIR} 
+"main.cpp"
+"unit_test.cpp"
+"test.cpp"
+"../com/SimpleCfg.cpp"
+)
+
+# 指定生成目标
+ADD_EXECUTABLE(${PRJ_NAME} ${SRCS})
+
+
+#增加系统依赖库
+ADD_library(pthread SHARED IMPORTED)
+ADD_library(crypto SHARED IMPORTED)
+
+# 设置链接库
+target_link_libraries(${PRJ_NAME} dl)
+
+#cotire设置gcc的预编译头相关			
+set_target_properties(${PRJ_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire(${PRJ_NAME})
 

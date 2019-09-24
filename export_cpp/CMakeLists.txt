@@ -2,19 +2,22 @@
 cmake_minimum_required (VERSION 2.8)
 
 # 项目信息
-project (export_cpp CXX)
-SET(PRJ_NAME "export_cpp")
+project (export_cpp_cfg CXX)
+SET(PRJ_NAME "export_cpp_cfg")
 
 configure_file("version.h.in" "${PROJECT_SOURCE_DIR}/version.h")
 
 # include directories
 INCLUDE_DIRECTORIES(after  ${PROJECT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(after  "../com/")
 
 
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_SRCS 变量
 file(GLOB_RECURSE SRCS  ${PROJECT_SOURCE_DIR} "*.cc")
-file(GLOB_RECURSE SRCS2  ${PROJECT_SOURCE_DIR} "*.cpp")
+file(GLOB_RECURSE SRCS2  ${PROJECT_SOURCE_DIR} "*.cpp"
+"../com/SimpleCfg.cpp"
+)
 
 # 指定生成目标
 ADD_EXECUTABLE(${PRJ_NAME} ${SRCS} ${SRCS2})

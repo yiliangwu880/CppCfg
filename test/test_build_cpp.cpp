@@ -5,9 +5,9 @@
 #include "json.hpp"
 #include <exception>
 #include "SimpleCfg.h"
-#include "log.h"
 
 using namespace std;
+using namespace SimpleCfgLog;
 using json = nlohmann::json;
 
 
@@ -22,7 +22,7 @@ namespace {
 	void PrintClass(const char *TEST_STR)
 	{
 		SimpleCfg js;
-		if (!js.ParseSimpleCfg(TEST_STR))
+		if (!js.ParseStr(TEST_STR))
 		{
 			return;
 		}
@@ -46,7 +46,7 @@ namespace {
 		
 		)";
 			SimpleCfg js;
-			UNIT_ASSERT(!js.ParseSimpleCfg(TEST_STR));
+			UNIT_ASSERT(!js.ParseStr(TEST_STR));
 		}
 		{
 			const char *TEST_STR = R"(
@@ -55,7 +55,7 @@ namespace {
 		
 		)";
 			SimpleCfg js;
-			UNIT_ASSERT(!js.ParseSimpleCfg(TEST_STR));
+			UNIT_ASSERT(!js.ParseStr(TEST_STR));
 		}
 		//数组元素不一致
 		{
@@ -65,7 +65,7 @@ namespace {
 		
 		)";
 			SimpleCfg js;
-			UNIT_ASSERT(!js.ParseSimpleCfg(TEST_STR));
+			UNIT_ASSERT(!js.ParseStr(TEST_STR));
 
 			string cpp_str;
 			JsToCpp::Build(js, "MyCfg", cpp_str);
@@ -79,7 +79,7 @@ namespace {
 		)"; 
 			//EnableLog(true);
 			SimpleCfg js;
-			UNIT_ASSERT(!js.ParseSimpleCfg(TEST_STR));
+			UNIT_ASSERT(!js.ParseStr(TEST_STR));
 
 			string cpp_str;
 			JsToCpp::Build(js, "MyCfg", cpp_str);
@@ -153,7 +153,7 @@ namespace {
 		)";			
 			EnableLog(false);
 			SimpleCfg js;
-			UNIT_ASSERT(!js.ParseSimpleCfg(TEST_STR));
+			UNIT_ASSERT(!js.ParseStr(TEST_STR));
 
 			string cpp_str;
 			UNIT_ASSERT(!JsToCpp::Build(js, "MyCfg", cpp_str));

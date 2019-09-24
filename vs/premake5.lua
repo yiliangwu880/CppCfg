@@ -17,29 +17,34 @@ DEF_CPP_EXT_LS={"cpp","h", "hpp", "text", "txt", "cfg"} --改写源码扩展名
 
 Project "sample"
 	IncludeFile { 
-		"../include/",
+		"../com/",
 	}
 
 	SrcPath { 
 		"../sample/**",  --**递归所有子目录，指定目录可用 "cc/*.cpp" 或者  "cc/**.cpp"
+		"../com/**", 
 	}
 
 Project "export_cpp"
 	IncludeFile { 
-		"../include/",
+		"../com/",
 	}
 
 	SrcPath { 
 		"../export_cpp/**",  --**递归所有子目录，指定目录可用 "cc/*.cpp" 或者  "cc/**.cpp"
+		"../com/**", 
 	}
 	
 Project "test"
 	IncludeFile { 
-		"../include/",
+		"../com/",
+		"../export_cpp/",
 	}
 
 	SrcPath { 
 		"../test/**",  --**递归所有子目录，指定目录可用 "cc/*.cpp" 或者  "cc/**.cpp"
+		"../com/**", 
+		"../export_cpp/ExportCpp.cpp", 
 	}
 
 

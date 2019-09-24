@@ -9,6 +9,7 @@
 using namespace std;
 using json = nlohmann::json;
 
+using namespace SimpleCfgLog;
 namespace{
 //
 //const char *TEST_SIMPLE_CFG = R"(
@@ -63,7 +64,7 @@ namespace{
 					n2 4
 				)";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["n1"] == 31);
@@ -72,20 +73,20 @@ namespace{
 		{
 			const char *TEST_STR = "n1=3";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["n1"] == 3);
 		}
 		{
 			const char *TEST_STR = "n1:3";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 			UNIT_ASSERT(js["n1"] == 3);
 		}
 		{
 			const char *TEST_STR = "n1:33 n2=true	n3=false	n4=FALSE n5=\"abc\" n6='a' ";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 			UNIT_ASSERT(js["n1"] == 33);
 			UNIT_ASSERT(js["n2"] == true);
 			UNIT_ASSERT(js["n3"] == false);
@@ -101,7 +102,7 @@ namespace{
 					n2 4
 				)";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["n1"] == 31);
@@ -114,7 +115,7 @@ namespace{
 					n2 4
 				)";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["n1"] == 3.1);
@@ -131,7 +132,7 @@ namespace{
 					n2= 4 
 				)";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["n1"] == 331);
@@ -140,7 +141,7 @@ namespace{
 		{
 			const char *TEST_STR = "n1 : 31 n2 4";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["n1"] == 31);
@@ -154,7 +155,7 @@ namespace{
 
 				)";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["o1"]["s1"] == 3);
@@ -173,7 +174,7 @@ namespace{
 		
 				)";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["o1"]["s1"] == 3);
@@ -190,7 +191,7 @@ namespace{
 		{
 			const char *TEST_STR = "a=[1,2, :true,		\"ab3c\", \'a\']";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["a"][0] == 1);
 			UNIT_ASSERT(js["a"][1] == 2);
@@ -209,7 +210,7 @@ a:[1,2, :true,
 b=3
 )";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["b"] == 3);
 			UNIT_ASSERT(js["a"][0] == 1);
@@ -242,7 +243,7 @@ b=3//a
 //abb
 )";
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 			UNIT_INFO("js=%s", js.c_str());
 			UNIT_ASSERT(js["b"] == 3);
 			UNIT_ASSERT(js["a"][0] == 1);
@@ -286,7 +287,7 @@ b=3//a
 
 */
 			SimpleCfg js;
-			js.ParseSimpleCfg(TEST_STR);
+			js.ParseStr(TEST_STR);
 			UNIT_INFO("js=%s", js.c_str());
 
 			UNIT_ASSERT(js["dyn1"] == 1);
