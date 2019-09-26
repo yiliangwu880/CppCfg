@@ -198,10 +198,13 @@ bool SimpleCfg::IsEnableArray(const nlohmann::json &js)
 		}
 		else
 		{
-			if (js_1st.type() != member.type())
+			if (js_1st.type() != member.type() )
 			{
-				Log("error , array element must be same type");
-				return false;
+				if (!(js_1st.is_number() && member.is_number()))
+				{
+					Log("error , SimpleCfg array element must be same type");
+					return false;
+				}
 			}
 		}
 	}
@@ -243,7 +246,7 @@ bool SimpleCfg::ParseObj(CharIter start, CharIter end, json &js)
 			Log("error , repeated menber name");
 			return false;
 		}
-		L_DEBUG("find member and value: %s = %s", name.c_str(), value.c_str());
+		L_DEBUG("find member and value: [%s] = [%s]", name.c_str(), value.c_str());
 		//到这里， cur 已经指向下一个成员字符串开头
 		if (value[0] == '{')
 		{
@@ -338,6 +341,37 @@ bool SimpleCfg::ParseArray(CharIter start, CharIter end, json &js)
 	return false;
 }
 
+bool SimpleCfg::CheckAndJumpSpace(CharIter &cur, CharIter end)
+{
+	if (cur == end)
+	{
+		return false;
+	}
+	//跳过分隔符
+	bool isFind = false;
+	for (uint32 n = 0; n < 50000; ++n)
+	{
+		if (*cur==' ')
+		{
+			isFind = true;
+			cur++;
+			if (cur == end)
+			{
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+		if (n >= 50000 - 1)
+		{
+			Log("error, CheckAndJumpSplit endless loop ");
+			return false;
+		}
+	}
+	return isFind;
+}
 bool SimpleCfg::CheckAndJumpSplit(CharIter &cur, CharIter end)
 {
 	if (cur == end)
@@ -370,7 +404,7 @@ bool SimpleCfg::CheckAndJumpSplit(CharIter &cur, CharIter end)
 	return isFind;
 }
 
-void SimpleCfg::CheckAndJumpSplitComment(CharIter &cur, CharIter end)
+void SimpleCfg::CheckAndJumpSCS(CharIter &cur, CharIter end)
 {
 	if (cur == end)
 	{
@@ -384,6 +418,10 @@ void SimpleCfg::CheckAndJumpSplitComment(CharIter &cur, CharIter end)
 			continue;
 		}
 		if (CheckAndJumpComment(cur, end))
+		{
+			continue;
+		}
+		if (CheckAndJumpSpace(cur, end))
 		{
 			continue;
 		}
@@ -428,16 +466,43 @@ bool SimpleCfg::CheckAndJumpComment(CharIter &cur, CharIter end)
 
 //解析基础值，
 //@js [out] 值赋值给js=xx
-bool SimpleCfg::ParseBaseValue(const string &value, json &js)
+bool SimpleCfg::ParseBaseValue(const string &value_in, json &js)
 {
-	if (value.empty())
+	if (value_in.empty())
 	{
 		Log("error para in ParseBaseValue");
 		return false;
 	}
 	try
 	{
+		CharIter cur = value_in.begin();
+		CheckAndJumpSCS(cur, value_in.end());
+		string value(cur,value_in.end());
 		L_DEBUG("ParseBaseValue %s", value.c_str());
+
+		{//运算符的情况
+			CharIter it = std::find_if(value.cbegin(), value.cend(), IsOperatorChar);
+			if (it != value.cend() && it != value.cbegin())//有操作符而且操作符不是字符前
+			{
+				Log("handler operator");
+				if ((it+1)== value.cend())
+				{
+					Log("error, value end can't be operator. value=[%s]", value.c_str());
+					return false;
+				}
+				string left_num(value.cbegin(), it);
+				json left_js;
+				//L_DEBUG("left_num=%s", left_num.c_str());
+				ParseBaseValue(left_num, left_js);
+
+				string right_num(it + 1, value.cend());
+				json right_js;
+				//L_DEBUG("right_num=%s", right_num.c_str());
+				ParseBaseValue(right_num, right_js);
+				js=OperatorBaseValue(left_js, *it, right_js);
+				return true;
+			}
+		}
 		//大写库不支持，特殊处理
 		{
 			if (value == "TRUE"
@@ -452,6 +517,32 @@ bool SimpleCfg::ParseBaseValue(const string &value, json &js)
 				return true;
 			}
 		}
+		//16进制
+		if (
+			value.size() > 2
+			&& value[0] == '0'
+			&& (value[1] == 'x' || value[1] == 'X')
+			)
+		{
+			char *endptr = nullptr;
+			int64 v = strtoll(&value[2], &endptr, 16);
+			js = v;
+			return true;
+		}
+		//16进制负数
+		if (
+			value.size() > 3
+			&& value[0] == '-'
+			&& value[1] == '0'
+			&& (value[2] == 'x' || value[2] == 'X')
+			)
+		{
+			char *endptr = nullptr;
+			int64 v = strtoll(&value[3], &endptr, 16);
+			js = -v;
+			return true;
+		}
+		//单字符
 		if (value.front() == '\'')
 		{
 			if (value.size() < 2)
@@ -462,7 +553,7 @@ bool SimpleCfg::ParseBaseValue(const string &value, json &js)
 			js = value[1];
 			return true;
 		}
-
+		L_DEBUG("json parse : %s", value.c_str());
 		js = json::parse(value);
 		if (js.is_null())
 		{
@@ -479,63 +570,8 @@ bool SimpleCfg::ParseBaseValue(const string &value, json &js)
 	{
 		Log("parse json fail");
 	}
-	return false;
 
-	//字符串
-	{
-		CharIter it = std::find(value.cbegin(), value.cend(), '"');
-		if (it != value.cend())
-		{//is string
-			++it;
-			CharIter end_it = std::find(it, value.cend(), '"');
-			if (end_it == value.cend())
-			{
-				Log("error string value when ParseBaseValue. [%s]", value.c_str());
-				return false;
-			}
-			js["base"] = string(it, end_it);
-			return true;
-		}
-	}
-
-	//bool
-	{
-		if (value == "true" 
-			|| value == "TRUE"
-			)
-		{
-			js["base"] = true;
-			return true;
-		}
-		if (value == "FALSE"
-			|| value == "false"
-			)
-		{
-			js["base"] = false;
-			return true;
-		}
-	}
-
-	//浮点数
-	{
-		json js = json::parse(value);
-
-	}
-
-	//数字
-	{
-		char *endptr = nullptr;
-		int64 v = strtoll(value.c_str(), &endptr, 10);
-		if (nullptr != endptr)
-		{
-			Log("error number value when ParseBaseValue. [%s]", value.c_str());
-			return false;
-		}
-		js["base"] = v;
-		return true;
-	}
-
-	Log("error, unknow value when ParseBaseValue. [%s]", value.c_str());
+	Log("error, unknow value when ParseBaseValue. ");
 	return false;
 }
 
@@ -726,11 +762,7 @@ bool SimpleCfg::Find1stElment(CharIter &cur, const CharIter end, std::string &va
 	}
 
 	//跳过分隔符
-	//CheckAndJumpSplit(cur, end);
-
-	//CheckAndJumpComment(cur, end);
-
-	CheckAndJumpSplitComment(cur, end);
+	CheckAndJumpSCS(cur, end);
 	//找对象值
 	if (cur == end)
 	{
@@ -750,7 +782,7 @@ bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &val
 	}
 	CharIter value_start = cur;
 
-	CheckAndJumpSplitComment(cur, end);
+	CheckAndJumpSCS(cur, end);
 	//找对象值结束位置
 	if (*cur == '{' || *cur == '[')
 	{
@@ -803,12 +835,22 @@ bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &val
 	}
 	else//找基本值结束位置
 	{
+
+		L_DEBUG("FindValueStr, after jump split. cur=%s", &*cur);
+		char last_char = 0; //IsEndSymbol 上次查找字符
+		bool is_comment_end=false;
 		auto IsEndSymbol = [&](const char c)
 		{
-			if ('}' == c || ']' == c || '/' == c)
+			if ('}' == c || ']' == c )
 			{
 				return true;
 			}
+			if ('/' == c && last_char=='/')//找到 "//" 两个字符
+			{
+				is_comment_end = true;
+				return true;
+			}
+			last_char = c;
 			return IsSplitChar(c);
 		};
 		CharIter it = std::find_if(cur, end, IsEndSymbol);
@@ -823,6 +865,10 @@ bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &val
 		{
 			return false;
 		}
+		if (is_comment_end)
+		{
+			it--;
+		}
 		value.assign(value_start, it);
 		cur = it + 1;
 		return true;
@@ -832,8 +878,7 @@ bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &val
 bool SimpleCfg::IsSplitChar(char c)
 {
 	if (
-		' ' == c
-		|| ',' == c
+		 ',' == c
 		|| ':' == c
 		|| ';' == c
 		|| '	' == c
@@ -843,5 +888,62 @@ bool SimpleCfg::IsSplitChar(char c)
 		return true;
 	}
 	return false;
+}
+
+bool SimpleCfg::IsOperatorChar(const char c)
+{
+	if (
+		'+' == c
+		|| '-' == c
+		|| '*' == c
+		|| '/' == c
+		)
+	{
+		return true;
+	}
+	return false;
+}
+
+nlohmann::json SimpleCfg::OperatorBaseValue(const nlohmann::json &left, char opt, const nlohmann::json &right)
+{
+	if (!left.is_number() || !right.is_number())
+	{
+		Log("error, unknow oprand is not number");
+		return json();
+	}
+	double num_left = left;
+	double num_right = right;
+
+	Log(" %.1f opt %.1f", num_left, num_right);
+	switch (opt)
+	{
+	case '+':
+		num_left += num_right;
+		break;
+	case '-':
+		num_left -= num_right;
+		break;
+	case '*':
+		num_left *= num_right;
+		break;
+	case '/':
+		if (0 == num_right)
+		{
+			Log("error, divide zero");
+			return json();
+		}
+		num_left /= num_right;
+		break;
+	default:
+		Log("unknow opt char[%c]", opt);
+		return json();
+		break;
+	}
+	Log(" = %.1f", num_left);
+	if (num_left - (int64)num_left < 0.0000001)
+	{
+		return (int64)num_left;
+	}
+	return num_left;
 }
 

@@ -1,15 +1,15 @@
 简介：
-	进程通常都有配置文件读取。为了让配置使用和相关代码开发最简单，效率化，因此设计了个辅助工具 CppCfg。
-	CppCfg做配置使用步骤：
-	）编辑配置文件，定义对象内容以及结构。支持简单的类C语言格式，json格式
-	）导出解析对象的类，为cpp文件。
+	进程通常都有配置文件读取。为了让配置容易编写和cpp代码读取最简单化，因此设计了个辅助工具 CppCfg。
+	CppCfg使用步骤：
+	）编辑配置文件，配置内容。（格式简单 a=3, b=4. 如果想要复杂的对象参考json结构）
+	）导出cpp文件。 内容为解析配置的类。
 	）cpp文件加入项目编译
 	）启动进程，生成对象。
 	
 	亮点：
 		和protobuf解析文本对象类似，但更简单。
 		配置文本格式类似json, 但更简单好看，语法格式宽松。
-		自动生成cpp代码的配置类。
+		工具生成cpp类的h文件，用来读取配置。
 		cpp代码读取配置静态化。比如: ip = cfg.ip; 而不是 ip=cfg.Get("ip");
 		cpp代码配置名和具体配置一样。 而不是像proto的cpp风格。比如 msg.get_ip();
 		能简单运算。 比如 num=3+4;
@@ -23,28 +23,22 @@
 使用：
 	)编译
 	）导出配置相关的h文件：
-		运行bin目录的export_cpp执行文件。比如：./export_cpp ../export_cpp/test_cfg.txt
-		成功会生成test_cfg.h文件
-	）你的项目加入导出文件test_cfg.h,加入com目录的cpp文件。
-	）你的项目代码引用test_cfg.h，初始化配置和读取配置。例子如下：
-		test_cfg cfg;//test_cfg.h里面导出的类
-		SimpleCfg js;
-		js.ParseFile("test_cfg.txt");//解析配置文件
-		cfg.Assign(js); //初始化配置
-
-		uint64 read = cfg.a1;//读取配置使用
-
-vs浏览代码：
-	执行.\vs\run.bat,生成sln文件
-
-
+		运行bin目录的export_cpp_cfg执行文件。比如：./export_cpp ../export_cpp/test_cfg.txt
+		成功会生成 CC_test_cfg.h文件
+	）你的项目加入导出文件 CC_test_cfg.h,加入com目录的cpp文件。
+	）你的项目代码包含 CC_test_cfg.h，初始化配置和读取配置。例子如下：
+		test_cfg cfg;			//CC_test_cfg.h里面导出的类
+		cfg.LoadFile();			//解析配置文件
+		uint64 read = cfg.a1;	//读取配置使用
+		
+-----------------------------以下详细说明------------------------------------------------------------
 目录结构：
 	sample			== 使用例子项目
 	export_cpp      == 导出工具项目
 	test            == 测试用例项目
 	bin				== 编译目标文件位置
 	com				== 组件，用户自定义项目需要使用里面的源文件。
-
+	vs				== vs浏览代码：执行.\vs\run.bat,生成sln文件
 
 详细介绍：
 
@@ -77,10 +71,11 @@ vs浏览代码：
 详细功能：
 	读取配置文件
 	读取字符串配置
-	导出cpp文件工具。基于linux平台
+	工具生成cpp类的h文件，用来读取配置。基于linux平台
 	静态格式检查
 	热更新配置
 	可以支持动态格式。动态格式在CPP里面为标准json字符串。
+	能简单运算。 右比左优先，比如 10 * 1 + 2 == 30;
 	
 配置格式：
 	综合：

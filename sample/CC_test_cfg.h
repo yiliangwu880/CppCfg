@@ -4,6 +4,7 @@
 #pragma once
 #include <string>
 #include <array>
+#include "SimpleCfg.h"
 
 struct test_cfg
 {
@@ -12,9 +13,9 @@ struct test_cfg
 		struct S_b2
 		{
 			bool c1;
-			std::array<int32,2> c2;
+			std::array<int16,2> c2;
 		};
-		uint32 b1;
+		uint16 b1;
 		S_b2 b2;
 	};
 	struct S_a31
@@ -26,13 +27,30 @@ struct test_cfg
 	////////////////////////define member list////////////////////////
 	uint64 a1;
 	std::string a2;
-	std::array<uint32,2> a22;
+	std::array<uint16,2> a22;
 	S_a3 a3;
 	std::array<S_a31,2> a31;
 	std::string dyn1;
 	std::string dyn2;
 
 	////////////////////////method list////////////////////////
+	//load or reload cfg file .
+	bool LoadFile(const char *file_name=nullptr)
+	{
+		//default load original cfg file name
+		if (nullptr == file_name)
+		{
+			file_name = "test_cfg.txt";
+		}
+		SimpleCfg js;
+		if (!js.ParseFile(file_name))
+		{
+			return false;
+		}
+		return Assign(js);
+	}
+
+private:
 	template<typename Array>
 	inline size_t ArrayLen(const Array &array)
 	{

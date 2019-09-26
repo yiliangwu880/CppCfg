@@ -59,7 +59,11 @@ private:
 	//return true表示操作了跳过
 	bool CheckAndJumpComment(CharIter &cur, CharIter end);
 	bool CheckAndJumpSplit(CharIter &cur, CharIter end);
-	void CheckAndJumpSplitComment(CharIter &cur, CharIter end);
+	bool CheckAndJumpSpace(CharIter &cur, CharIter end);
+
+	//跳过 split comment space
+	//
+	void CheckAndJumpSCS(CharIter &cur, CharIter end);
 
 	//解析基础值，
 	//@js [out] 值赋值给js["base"]=xx
@@ -99,6 +103,9 @@ private:
 	bool FindValueStr(CharIter &cur, const CharIter end, std::string &value);
 
 	bool IsSplitChar(char c);
+	//有运算符
+	static bool IsOperatorChar(const char c);
 
+	nlohmann::json OperatorBaseValue(const nlohmann::json &left, char opt, const nlohmann::json &right);
 };
 

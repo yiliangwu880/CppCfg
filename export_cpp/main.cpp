@@ -140,7 +140,7 @@ void BuildCppFile(const char *fileName)
 
 	//cfg to cpp file
 	string cpp_str;
-	if (!JsToCpp::Build(js, prefixName, cpp_str))
+	if (!JsToCpp::Build(js, fileName, cpp_str))
 	{
 		Log("build file fail. error struct");
 		return;
@@ -149,7 +149,7 @@ void BuildCppFile(const char *fileName)
 	//build file
 	//Log("result: %s", cpp_str.c_str());
 	Log("prefixName: %s", prefixName.c_str());
-	Str2File(prefixName + ".h", cpp_str);
+	Str2File(string("CC_")+prefixName + ".h", cpp_str);
 }
 
 int main(int argc, char* argv[]) 

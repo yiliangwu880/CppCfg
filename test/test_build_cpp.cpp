@@ -162,16 +162,8 @@ namespace {
 		{
 			const char *TEST_STR = R"(
 			a1=999999999999999333
-			a2="tt33"
-			a22=[1,2]
-			a3={b1=2, b2:{
-						c1=true, 
-						c2:['a','b']
-						}
-				}
-			a31=[{b1=false},{b1=true}]
-			dynamic dyn1 = 1
-			dynamic dyn2 = { a="a",b=2,  b1 = [1,2] }
+			a11=0x1
+			a2 = 10 * 1 + 0x2
 		)";
 			PrintClass(TEST_STR);
 		}
@@ -183,6 +175,7 @@ namespace {
 }
 UNITTEST(build_cpp)
 {
+	return;
 	test_error();
 	TestBuildClassStr();
 }

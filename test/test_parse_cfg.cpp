@@ -84,7 +84,7 @@ namespace{
 			UNIT_ASSERT(js["n1"] == 3);
 		}
 		{
-			const char *TEST_STR = "n1:33 n2=true	n3=false	n4=FALSE n5=\"abc\" n6='a' ";
+			const char *TEST_STR = "n1:33; n2=true;	n3=false;	n4=FALSE; n5=\"abc\"; n6='a' ";
 			SimpleCfg js;
 			js.ParseStr(TEST_STR);
 			UNIT_ASSERT(js["n1"] == 33);
@@ -139,7 +139,7 @@ namespace{
 			UNIT_ASSERT(js["n2"] == 4);
 		}
 		{
-			const char *TEST_STR = "n1 : 31 n2 4";
+			const char *TEST_STR = "n1 : 31; n2 4";
 			SimpleCfg js;
 			js.ParseStr(TEST_STR);
 
@@ -314,6 +314,36 @@ b=3//a
 			UNIT_ASSERT(js["a"][6]["b"] == "abc");
 		}
 	}
+	void testCalc()
+	{
+
+		{
+			const char *TEST_STR = R"(
+					n1 : 331
+					n2= 2 + 3 + 3+2
+n3=0x10 * 1 / 0x2
+				)";
+			SimpleCfg js;
+			js.ParseStr(TEST_STR);
+
+			UNIT_INFO("js=%s", js.c_str());
+			UNIT_ASSERT(js["n1"] == 331);
+			UNIT_ASSERT(js["n2"] == 10);
+		}
+		{
+			const char *TEST_STR = R"(
+					n1 : -331
+					n2 = [ -0x3f, 0xa]
+				)";
+			SimpleCfg js;
+			js.ParseStr(TEST_STR);
+
+			UNIT_INFO("js=%s", js.c_str());
+			UNIT_ASSERT(js["n1"] == -331);
+			UNIT_ASSERT(js["n2"][0] == -0x3f);
+			UNIT_ASSERT(js["n2"][1] == 0xa);
+		}
+	}
 }//namespace
 
 //测试json接口如何使用
@@ -322,5 +352,6 @@ UNITTEST(parse_cfg)
 	t1();
 	testObjArray();
 	testDynamic();
+	testCalc();
 
 }

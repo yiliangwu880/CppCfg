@@ -43,13 +43,15 @@ namespace
 	}
 }
 
-bool JsToCpp::Build(const nlohmann::json &js, const std::string &class_name, std::string &cpp_str)
+bool JsToCpp::Build(const nlohmann::json &js, const std::string &file_name, std::string &cpp_str)
 {
 	L_DEBUG("JsToCpp::Build %s", js.dump().c_str());
 	if (!IsEnableObj(js))
 	{
 		return false;
 	}
+	string class_name;
+	CfgFileNamePrefix(file_name, class_name);
 
 	{
 		cpp_str += R"(
@@ -58,6 +60,7 @@ bool JsToCpp::Build(const nlohmann::json &js, const std::string &class_name, std
 #pragma once
 #include <string>
 #include <array>
+#include "SimpleCfg.h"
 )";
 
 		cpp_str += "\nstruct " + class_name + "\n";
@@ -72,7 +75,7 @@ bool JsToCpp::Build(const nlohmann::json &js, const std::string &class_name, std
 
 	{
 		string str;
-		BuildMethod(js, str);
+		BuildMethod(js, file_name, str);
 		cpp_str += str;
 	}
 	cpp_str += "};\n";
@@ -88,11 +91,15 @@ string JsToCpp::GetBaseCppType(const nlohmann::json &js)
 	else if (js.is_number_unsigned())
 	{
 		int64 v = js.get<uint64>();
-		if (v > std::numeric_limits<int32>::max())
+		if (v > std::numeric_limits<uint32>::max())
 		{
 			return "uint64";
 		}
-		return "uint32";
+		if (v > std::numeric_limits<uint16>::max())
+		{
+			return "uint32";
+		}
+		return "uint16";
 	}
 	else if (js.is_number_integer())
 	{
@@ -101,7 +108,11 @@ string JsToCpp::GetBaseCppType(const nlohmann::json &js)
 		{
 			return "int64";
 		}
-		return "int32";
+		if (v > std::numeric_limits<int16>::max() || v < std::numeric_limits<int16>::min())
+		{
+			return "int32";
+		}
+		return "int16";
 	}
 	else if (js.is_number())
 	{
@@ -110,7 +121,11 @@ string JsToCpp::GetBaseCppType(const nlohmann::json &js)
 		{
 			return "int64";
 		}
-		return "int32";
+		if (v > std::numeric_limits<int16>::max() || v < std::numeric_limits<int16>::min())
+		{
+			return "int32";
+		}
+		return "int16";
 	}
 	else if (js.is_boolean())
 	{
@@ -124,10 +139,80 @@ string JsToCpp::GetBaseCppType(const nlohmann::json &js)
 	return "unknow";
 }
 
-bool JsToCpp::BuildMethod(const nlohmann::json &js, std::string &cpp_str)
+std::string JsToCpp::GetArrayCppType(const nlohmann::json &js)
 {
-	const char *START_STR = R"(
+	if (!js.is_array())
+	{
+		Log("error, para is not array");
+		return "ErrorArray";
+	}
+	//类型对应优先级
+	static std::map<string, uint32> m_type_2_pri=
+	{
+		{"double", 1},
+		{"int64", 2},
+		{"uint64", 3},
+		{"int32", 4},
+		{"uint32", 5},
+		{"int16", 6},
+		{"uint16", 7},
+	};
+	std::map<uint32, string> m_type; //候选数字类型，最优先的放前面
+
+	for (uint32 i=0; i<js.size(); ++i)
+	{
+		if (!js[i].is_primitive())
+		{
+			Log("error, array's elemt must be primitive");
+			return "ErrorArray";
+		}
+		if (!js[i].is_number())
+		{
+			return GetBaseCppType(js[i]);
+		}
+		string s = GetBaseCppType(js[i]);
+		auto it = m_type_2_pri.find(s);
+		if (it == m_type_2_pri.end())
+		{
+			Log("error, unknow primitive type [%s]", s.c_str());
+			return "ErrorArray";
+		}
+		m_type[it->second]=it->first;
+	}
+
+	return m_type.begin()->second;
+}
+
+void JsToCpp::CfgFileNamePrefix(const std::string &file_name, std::string &prefix)
+{
+	auto it = std::find(file_name.begin(), file_name.end(), '.');
+
+	prefix.assign(file_name.begin(), it);
+}
+
+bool JsToCpp::BuildMethod(const nlohmann::json &js, const std::string &file_name, std::string &cpp_str)
+{
+	const char *START_STR1 = R"(
 	////////////////////////method list////////////////////////
+	//load or reload cfg file .
+	bool LoadFile(const char *file_name=nullptr)
+	{
+		//default load original cfg file name
+		if (nullptr == file_name)
+		{
+			file_name = ")"; 
+	
+const char *START_STR2 = R"(";
+		}
+		SimpleCfg js;
+		if (!js.ParseFile(file_name))
+		{
+			return false;
+		}
+		return Assign(js);
+	}
+
+private:
 	template<typename Array>
 	inline size_t ArrayLen(const Array &array)
 	{
@@ -154,7 +239,7 @@ bool JsToCpp::BuildMethod(const nlohmann::json &js, std::string &cpp_str)
 	string assign_str;
 	BuildAssignMem(js, assign_str, "", "js");
 
-	cpp_str = START_STR + assign_str + END_STR;
+	cpp_str = START_STR1 + file_name + START_STR2 + assign_str + END_STR;
 	return true;
 }
 
@@ -306,7 +391,7 @@ void JsToCpp::BuildSubClassAndMember(const nlohmann::json &js, string &str, stri
 			else
 			{
 				//build member
-				mem_list += tab + "std::array<"+(GetBaseCppType(elment)) + ","+ NumToStr(mem.value().size())+"> " + mem.key() + ";\n";
+				mem_list += tab + "std::array<"+(GetArrayCppType(mem.value())) + ","+ NumToStr(mem.value().size())+"> " + mem.key() + ";\n";
 			}
 		}
 		else
@@ -389,8 +474,11 @@ bool JsToCpp::IsEnableArray(const nlohmann::json &js)
 		{
 			if (js_1st.type() != member.type())
 			{
-				Log("error , array element must be same type");
-				return false;
+				if (!(js_1st.is_number() && member.is_number()))
+				{
+					Log("error , SimpleCfg array element must be same type");
+					return false;
+				}
 			}
 		}
 	}
