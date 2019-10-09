@@ -36,6 +36,11 @@ public:
 	void BuildFile(const string &file_name)
 	{
 		ofstream ofs(file_name.c_str(), ios::ate | ios::out);
+		if (!ofs.is_open())
+		{
+			Log("error, open file for write fail: %s", file_name.c_str());
+			return;
+		}
 		ofs << m_context;
 		ofs.close();
 	}
@@ -126,6 +131,11 @@ void BuildCppFile(const char *fileName)
 	CfgFileNamePrefix(fileName, prefixName);
 
 	std::ifstream t(fileName);
+	if (!t.is_open())
+	{
+		Log("error, open file for write fail: %s", fileName);
+		return;
+	}
 	std::string str((std::istreambuf_iterator<char>(t)),
 		std::istreambuf_iterator<char>());
 	t.close();                    // close file handle
