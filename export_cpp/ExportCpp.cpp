@@ -45,7 +45,7 @@ namespace
 
 bool JsToCpp::Build(const nlohmann::json &js, const std::string &file_name, std::string &cpp_str)
 {
-	L_DEBUG("JsToCpp::Build %s", js.dump().c_str());
+	L_S_DEBUG("JsToCpp::Build %s", js.dump().c_str());
 	if (!IsEnableObj(js))
 	{
 		return false;
@@ -185,9 +185,53 @@ std::string JsToCpp::GetArrayCppType(const nlohmann::json &js)
 
 void JsToCpp::CfgFileNamePrefix(const std::string &file_name, std::string &prefix)
 {
-	auto it = std::find(file_name.begin(), file_name.end(), '.');
+	auto last_it = file_name.begin();//最后的.
+	auto find_start = last_it;
+	do
+	{//calc last_it
 
-	prefix.assign(file_name.begin(), it);
+		last_it = std::find(find_start, file_name.end(), '.');
+		if (last_it == file_name.end())
+		{
+			break;
+		}
+
+		for (uint32 i = 0; i < 1000; ++i)
+		{
+			last_it = std::find(find_start, file_name.end(), '.');
+			if (last_it == file_name.end())
+			{
+				last_it = --find_start;
+				break;
+			}
+			find_start = last_it + 1;
+			if (i >= 99)
+			{
+				Log("error, unless loop");
+			}
+		}
+	} while (false);
+
+
+	auto start_it = file_name.begin();//最后的/
+	find_start = start_it;
+	for (uint32 i = 0; i < 1000; ++i)
+	{
+		start_it = std::find(find_start, file_name.end(), '/');
+		if (start_it == file_name.end())
+		{
+			start_it = find_start;
+			break;
+		}
+		find_start = start_it + 1;
+		if (i >= 99)
+		{
+			Log("error, unless loop");
+		}
+	}
+
+	prefix.assign(start_it, last_it);
+	Log("prefix: %s\n", prefix.c_str());
 }
 
 bool JsToCpp::BuildMethod(const nlohmann::json &js, const std::string &file_name, std::string &cpp_str)
@@ -266,7 +310,7 @@ bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std
 		//build dynamic obj
 		if (nullptr != dynArray)
 		{
-			L_DEBUG("find key %s", mem.key().c_str());
+			L_S_DEBUG("find key %s", mem.key().c_str());
 			if (-1 != FindValueInArray(*dynArray, mem.key()))
 			{
 				cpp_str += TAB + preName + mem.key() + " = " + preName_js + "[\"" + mem.key() + "\"].dump().c_str();\n";
@@ -338,10 +382,10 @@ void JsToCpp::BuildSubClassAndMember(const nlohmann::json &js, string &str, stri
 		//build dynamic obj
 		if (nullptr != dynArray)
 		{
-			L_DEBUG("find key %s", mem.key().c_str());
+			L_S_DEBUG("find key %s", mem.key().c_str());
 			if (-1 != FindValueInArray(*dynArray, mem.key()))
 			{
-				L_DEBUG("build dynamic");
+				L_S_DEBUG("build dynamic");
 				mem_list += tab + "std::string" + string(" ") + mem.key() + ";\n";
 				continue;
 			}

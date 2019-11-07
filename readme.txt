@@ -26,7 +26,7 @@
 使用：
 	)编译
 	）导出配置相关的h文件：
-		运行bin目录的export_cpp_cfg执行文件。比如：./export_cpp ../export_cpp/test_cfg.txt
+		运行bin目录的export_cpp_cfg执行文件。比如：./export_cpp_cfg ../export_cpp/test_cfg.txt
 		成功会生成 CC_test_cfg.h文件
 	）你的项目加入导出文件 CC_test_cfg.h,加入com目录的cpp文件。
 	）你的项目代码包含 CC_test_cfg.h，初始化配置和读取配置。例子如下：

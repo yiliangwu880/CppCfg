@@ -115,20 +115,11 @@ void Str2File(const string &file_name, const string &content)
 	ofs.close();
 }
 
-//获取前缀名
-void CfgFileNamePrefix(const string &file_name, string &prefix)
-{
-	auto it = std::find(file_name.begin(), file_name.end(), '.');
-
-	prefix.assign(file_name.begin(), it);
-}
-
-
 void BuildCppFile(const char *fileName)
 {
 	Log("build file: %s", fileName);
 	string prefixName;
-	CfgFileNamePrefix(fileName, prefixName);
+	JsToCpp::CfgFileNamePrefix(fileName, prefixName);
 
 	std::ifstream t(fileName);
 	if (!t.is_open())

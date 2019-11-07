@@ -17,6 +17,8 @@ public:
 	//return true表示合法的cfg对象
 	static bool IsEnableObj(const nlohmann::json &js);
 
+	//获取前缀名
+	static void CfgFileNamePrefix(const std::string &file_name, std::string &prefix);
 private:
 	//根据json,生成成员函数
 	static bool BuildMethod(const nlohmann::json &js, const std::string &file_name, std::string &cpp_str);
@@ -34,8 +36,6 @@ private:
 	static std::string GetBaseCppType(const nlohmann::json &js);
 	//获取数组类型，元素必须为基础类型
 	static std::string GetArrayCppType(const nlohmann::json &js);
-	//获取前缀名
-	static void CfgFileNamePrefix(const std::string &file_name, std::string &prefix);
 };
 
 

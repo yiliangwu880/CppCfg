@@ -10,9 +10,9 @@
 
 #define PRINT_DEBUG_LOG  //打印调试日志
 #ifdef PRINT_DEBUG_LOG
-#define L_DEBUG(x, ...)   Log(x, ##__VA_ARGS__)
+#define L_S_DEBUG(x, ...)   Log(x, ##__VA_ARGS__)
 #else
-#define L_DEBUG(x, ...)  
+#define L_S_DEBUG(x, ...)  
 #endif
 namespace SimpleCfgLog
 {

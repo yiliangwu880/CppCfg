@@ -1,8 +1,16 @@
 #include "SimpleCfg.h"
 #include <sstream>
 #include <limits>
+#include <fstream>
+#include <stdarg.h>
 
 
+using uint16 = unsigned short;
+using uint32 = unsigned int;
+using uint64 = unsigned long long;
+using int64 = long long;
+using uint8 = unsigned char;
+using int32 = int;
 
 using json = nlohmann::json;
 using namespace std;
@@ -246,7 +254,7 @@ bool SimpleCfg::ParseObj(CharIter start, CharIter end, json &js)
 			Log("error , repeated menber name");
 			return false;
 		}
-		L_DEBUG("find member and value: [%s] = [%s]", name.c_str(), value.c_str());
+		L_S_DEBUG("find member and value: [%s] = [%s]", name.c_str(), value.c_str());
 		//到这里， cur 已经指向下一个成员字符串开头
 		if (value[0] == '{')
 		{
@@ -273,9 +281,9 @@ bool SimpleCfg::ParseObj(CharIter start, CharIter end, json &js)
 			{
 				return false;
 			}
-			L_DEBUG("ParseBaseValue result js=%s", Js2String(v).c_str());
+			L_S_DEBUG("ParseBaseValue result js=%s", Js2String(v).c_str());
 			js[name] = v;
-			L_DEBUG("parent result js=%s", Js2String(js).c_str());
+			L_S_DEBUG("parent result js=%s", Js2String(js).c_str());
 		}
 	}
 	Log("error, ParseObj endless loop");
@@ -306,7 +314,7 @@ bool SimpleCfg::ParseArray(CharIter start, CharIter end, json &js)
 		{
 			return true;//没有元素了
 		}
-		L_DEBUG("find elment = %s", value.c_str());
+		L_S_DEBUG("find elment = %s", value.c_str());
 		//到这里， cur 已经指向下一个成员字符串开头
 
 		if (value[0] == '{')
@@ -449,16 +457,16 @@ bool SimpleCfg::CheckAndJumpComment(CharIter &cur, CharIter end)
 		}
 
 		//有注释 "//"
-		L_DEBUG("find comment //");
+		L_S_DEBUG("find comment //");
 		CharIter it = std::find(cur, end, '\n');
 		if (it == end)
 		{
 			cur = end;
-			L_DEBUG("jump to =%s", &*cur);
+			L_S_DEBUG("jump to =%s", &*cur);
 			return true;
 		}
 		cur = it + 1;
-		L_DEBUG("jump to =%s", &*cur);
+		L_S_DEBUG("jump to =%s", &*cur);
 		return true;
 	}
 	return false;
@@ -478,7 +486,7 @@ bool SimpleCfg::ParseBaseValue(const string &value_in, json &js)
 		CharIter cur = value_in.begin();
 		CheckAndJumpSCS(cur, value_in.end());
 		string value(cur,value_in.end());
-		L_DEBUG("ParseBaseValue %s", value.c_str());
+		L_S_DEBUG("ParseBaseValue %s", value.c_str());
 
 		{//运算符的情况
 			CharIter it = std::find_if(value.cbegin(), value.cend(), IsOperatorChar);
@@ -492,12 +500,12 @@ bool SimpleCfg::ParseBaseValue(const string &value_in, json &js)
 				}
 				string left_num(value.cbegin(), it);
 				json left_js;
-				//L_DEBUG("left_num=%s", left_num.c_str());
+				//L_S_DEBUG("left_num=%s", left_num.c_str());
 				ParseBaseValue(left_num, left_js);
 
 				string right_num(it + 1, value.cend());
 				json right_js;
-				//L_DEBUG("right_num=%s", right_num.c_str());
+				//L_S_DEBUG("right_num=%s", right_num.c_str());
 				ParseBaseValue(right_num, right_js);
 				js=OperatorBaseValue(left_js, *it, right_js);
 				return true;
@@ -553,7 +561,7 @@ bool SimpleCfg::ParseBaseValue(const string &value_in, json &js)
 			js = value[1];
 			return true;
 		}
-		L_DEBUG("json parse : %s", value.c_str());
+		L_S_DEBUG("json parse : %s", value.c_str());
 		js = json::parse(value);
 		if (js.is_null())
 		{
@@ -701,7 +709,7 @@ bool SimpleCfg::Find1stMemStr(CharIter &cur, const CharIter end , string &name, 
 	
 	if (DynamicStr == name)
 	{
-		L_DEBUG("is dynamic name");
+		L_S_DEBUG("is dynamic name");
 		isDynamic = true;
 		name.clear();
 		if (!FindNameStr(cur, end, name))
@@ -756,7 +764,7 @@ bool SimpleCfg::Find1stElment(CharIter &cur, const CharIter end, std::string &va
 		CheckAndJumpComment(cur, end);
 		if (cur == end)
 		{
-			L_DEBUG("no member found. ");
+			L_S_DEBUG("no member found. ");
 			return false;
 		}
 	}
@@ -766,7 +774,7 @@ bool SimpleCfg::Find1stElment(CharIter &cur, const CharIter end, std::string &va
 	//找对象值
 	if (cur == end)
 	{
-		L_DEBUG("FindValueStr end with comment");
+		L_S_DEBUG("FindValueStr end with comment");
 		return false;
 	}
 	return FindValueStr(cur, end, value);
@@ -774,7 +782,7 @@ bool SimpleCfg::Find1stElment(CharIter &cur, const CharIter end, std::string &va
 
 bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &value)
 {
-	L_DEBUG("FindValueStr cur=%s", &*cur);
+	L_S_DEBUG("FindValueStr cur=%s", &*cur);
 	if (cur == end)
 	{
 		Log("error para");
@@ -826,17 +834,17 @@ bool SimpleCfg::FindValueStr(CharIter &cur, const CharIter end, std::string &val
 			return false;
 		}
 		value.assign(value_start, it + 1);
-		L_DEBUG("it=%s", (const char *)&(*it));
+		L_S_DEBUG("it=%s", (const char *)&(*it));
 		cur = it;
 		cur++;
-		L_DEBUG("cur=%s", (const char *)&(*cur));
-		L_DEBUG("FindMemStr, find obj end value=%s, cur=%s", (const char *)&(*value_start), (const char *)&(*cur));
+		L_S_DEBUG("cur=%s", (const char *)&(*cur));
+		L_S_DEBUG("FindMemStr, find obj end value=%s, cur=%s", (const char *)&(*value_start), (const char *)&(*cur));
 		return true;
 	}
 	else//找基本值结束位置
 	{
 
-		L_DEBUG("FindValueStr, after jump split. cur=%s", &*cur);
+		L_S_DEBUG("FindValueStr, after jump split. cur=%s", &*cur);
 		char last_char = 0; //IsEndSymbol 上次查找字符
 		bool is_comment_end=false;
 		auto IsEndSymbol = [&](const char c)
