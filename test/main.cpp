@@ -10,6 +10,7 @@ using namespace std;
 using json = nlohmann::json;
 using namespace SimpleCfgLog;
 
+using namespace SCfg;
 
 int main(int argc, char* argv[])
 {

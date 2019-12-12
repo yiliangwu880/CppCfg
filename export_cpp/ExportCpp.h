@@ -45,7 +45,7 @@ struct MyCfg
 	//define struct type
 	struct n1
 	{
-		uint32 a;
+		SCfg::uint32 a;
 		bool arr[3];
 	};
 	struct a3
@@ -55,12 +55,12 @@ struct MyCfg
 			std::string n1;
 		};
 
-		uint32 a;
+		SCfg::uint32 a;
 		n2 n2;
 	};
 
 	////////////////////////define member list////////////////////////
-	uint32 a;
+	SCfg::uint32 a;
 	n1 n1;
 	a3 a3;
 

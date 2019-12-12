@@ -9,6 +9,7 @@
 using namespace std;
 using json = nlohmann::json;
 
+using namespace SCfg;
 
 
 string Js2String(json &js)
@@ -64,14 +65,16 @@ UNITTEST(Json)
 	} while (false);
 	{
 		json js;
-		json v = 3;
+		json v = 3;
+
 		js["n1"]=v;
 		//js={"n1":3} 
 		UNIT_INFO("js=%s", Js2String(js).c_str());
 	}
 	{
 		json js = { 1,"a" };
-		json v = 3;
+		json v = 3;
+
 		js.push_back(v);
 		//js=[1,"a",3] 
 		UNIT_INFO("js=%s", Js2String(js).c_str());
@@ -79,7 +82,8 @@ UNITTEST(Json)
 	{
 		//创建一个空数组
 		json js = json::array();
-		json v = 3;		js.push_back(1);
+		json v = 3;
+		js.push_back(1);
 		js.push_back(v);
 		//js=[1,3] 
 		UNIT_INFO("js=%s", Js2String(js).c_str());

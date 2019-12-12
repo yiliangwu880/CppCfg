@@ -13,9 +13,9 @@ struct test_cfg
 		struct S_b2
 		{
 			bool c1;
-			std::array<int16,2> c2;
+			std::array<SCfg::int16,2> c2;
 		};
-		uint16 b1;
+		SCfg::uint16 b1;
 		S_b2 b2;
 	};
 	struct S_a31
@@ -25,9 +25,9 @@ struct test_cfg
 
 
 	////////////////////////define member list////////////////////////
-	uint64 a1;
+	SCfg::uint64 a1;
 	std::string a2;
-	std::array<uint16,2> a22;
+	std::array<SCfg::uint16,2> a22;
 	S_a3 a3;
 	std::array<S_a31,2> a31;
 	std::string dyn1;

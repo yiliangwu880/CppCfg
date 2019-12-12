@@ -7,6 +7,7 @@
 using json = nlohmann::json;
 using namespace std;
 using namespace SimpleCfgLog;
+using namespace SCfg;
 
 namespace
 {
@@ -86,46 +87,46 @@ string JsToCpp::GetBaseCppType(const nlohmann::json &js)
 {
 	if (js.is_number_float())
 	{
-		return "double";
+		return "SCfg::double";
 	}
 	else if (js.is_number_unsigned())
 	{
 		int64 v = js.get<uint64>();
 		if (v > std::numeric_limits<uint32>::max())
 		{
-			return "uint64";
+			return "SCfg::uint64";
 		}
 		if (v > std::numeric_limits<uint16>::max())
 		{
-			return "uint32";
+			return "SCfg::uint32";
 		}
-		return "uint16";
+		return "SCfg::uint16";
 	}
 	else if (js.is_number_integer())
 	{
 		int64 v = js.get<int64>();
 		if (v > std::numeric_limits<int32>::max() || v < std::numeric_limits<int32>::min())
 		{
-			return "int64";
+			return "SCfg::int64";
 		}
 		if (v > std::numeric_limits<int16>::max() || v < std::numeric_limits<int16>::min())
 		{
-			return "int32";
+			return "SCfg::int32";
 		}
-		return "int16";
+		return "SCfg::int16";
 	}
 	else if (js.is_number())
 	{
 		int64 v = js.get<int64>();
 		if (v > std::numeric_limits<int32>::max() || v < std::numeric_limits<int32>::min())
 		{
-			return "int64";
+			return "SCfg::int64";
 		}
 		if (v > std::numeric_limits<int16>::max() || v < std::numeric_limits<int16>::min())
 		{
-			return "int32";
+			return "SCfg::int32";
 		}
-		return "int16";
+		return "SCfg::int16";
 	}
 	else if (js.is_boolean())
 	{
@@ -149,13 +150,13 @@ std::string JsToCpp::GetArrayCppType(const nlohmann::json &js)
 	//类型对应优先级
 	static std::map<string, uint32> m_type_2_pri=
 	{
-		{"double", 1},
-		{"int64", 2},
-		{"uint64", 3},
-		{"int32", 4},
-		{"uint32", 5},
-		{"int16", 6},
-		{"uint16", 7},
+		{"SCfg::double", 1},
+		{"SCfg::int64", 2},
+		{"SCfg::uint64", 3},
+		{"SCfg::int32", 4},
+		{"SCfg::uint32", 5},
+		{"SCfg::int16", 6},
+		{"SCfg::uint16", 7},
 	};
 	std::map<uint32, string> m_type; //候选数字类型，最优先的放前面
 
