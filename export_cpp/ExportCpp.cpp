@@ -4,10 +4,18 @@
 
 
 
+using int16 = int16_t;
+using uint16 = uint16_t;
+using uint32 = uint32_t;
+using uint64 = uint64_t;
+using int64 = int64_t;
+using uint8 = uint8_t;
+using int32 = int32_t;
+
+
 using json = nlohmann::json;
 using namespace std;
 using namespace SimpleCfgLog;
-using namespace SCfg;
 
 namespace
 {
@@ -87,46 +95,46 @@ string JsToCpp::GetBaseCppType(const nlohmann::json &js)
 {
 	if (js.is_number_float())
 	{
-		return "SCfg::double";
+		return "double";
 	}
 	else if (js.is_number_unsigned())
 	{
 		int64 v = js.get<uint64>();
 		if (v > std::numeric_limits<uint32>::max())
 		{
-			return "SCfg::uint64";
+			return "uint64_t";
 		}
 		if (v > std::numeric_limits<uint16>::max())
 		{
-			return "SCfg::uint32";
+			return "uint32_t";
 		}
-		return "SCfg::uint16";
+		return "uint16_t";
 	}
 	else if (js.is_number_integer())
 	{
 		int64 v = js.get<int64>();
 		if (v > std::numeric_limits<int32>::max() || v < std::numeric_limits<int32>::min())
 		{
-			return "SCfg::int64";
+			return "int64_t";
 		}
 		if (v > std::numeric_limits<int16>::max() || v < std::numeric_limits<int16>::min())
 		{
-			return "SCfg::int32";
+			return "int32_t";
 		}
-		return "SCfg::int16";
+		return "int16_t";
 	}
 	else if (js.is_number())
 	{
 		int64 v = js.get<int64>();
 		if (v > std::numeric_limits<int32>::max() || v < std::numeric_limits<int32>::min())
 		{
-			return "SCfg::int64";
+			return "int64_t";
 		}
 		if (v > std::numeric_limits<int16>::max() || v < std::numeric_limits<int16>::min())
 		{
-			return "SCfg::int32";
+			return "int32_t";
 		}
-		return "SCfg::int16";
+		return "int16_t";
 	}
 	else if (js.is_boolean())
 	{
@@ -150,13 +158,13 @@ std::string JsToCpp::GetArrayCppType(const nlohmann::json &js)
 	//类型对应优先级
 	static std::map<string, uint32> m_type_2_pri=
 	{
-		{"SCfg::double", 1},
-		{"SCfg::int64", 2},
-		{"SCfg::uint64", 3},
-		{"SCfg::int32", 4},
-		{"SCfg::uint32", 5},
-		{"SCfg::int16", 6},
-		{"SCfg::uint16", 7},
+		{"double", 1},
+		{"int64_t", 2},
+		{"uint64_t", 3},
+		{"int32_t", 4},
+		{"uint32_t", 5},
+		{"int16_t", 6},
+		{"uint16_t", 7},
 	};
 	std::map<uint32, string> m_type; //候选数字类型，最优先的放前面
 

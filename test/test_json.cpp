@@ -9,7 +9,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-using namespace SCfg;
 
 
 string Js2String(json &js)

@@ -8,16 +8,6 @@
 #include "json.hpp"
 
 
-namespace SCfg
-{
-	using int16 = int16_t;
-	using uint16 = uint16_t;
-	using uint32 = uint32_t;
-	using uint64 = uint64_t;
-	using int64 = int64_t;
-	using uint8 = uint8_t;
-	using int32 = int32_t;
-}
 #define PRINT_DEBUG_LOG  //打印调试日志
 #ifdef PRINT_DEBUG_LOG
 #define L_S_DEBUG(x, ...)   Log(x, ##__VA_ARGS__)

@@ -10,7 +10,6 @@ using namespace std;
 using namespace SimpleCfgLog;
 using json = nlohmann::json;
 
-using namespace SCfg;
 
 namespace {
 	string Js2String(json &js)

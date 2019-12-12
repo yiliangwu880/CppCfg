@@ -9,7 +9,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-using namespace SCfg;
 using namespace SimpleCfgLog;
 namespace{
 //
