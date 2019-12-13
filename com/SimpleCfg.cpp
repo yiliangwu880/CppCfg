@@ -516,13 +516,14 @@ bool SimpleCfg::ParseBaseValue(const string &value_in, json &js)
 		}
 		//大写库不支持，特殊处理
 		{
-			if (value == "TRUE"
+			transform(value.begin(), value.end(), value.begin(), ::tolower);
+			if (value == "true"
 				)
 			{
 				js = true;
 				return true;
 			}
-			if (value == "FALSE")
+			if (value == "false")
 			{
 				js = false;
 				return true;
