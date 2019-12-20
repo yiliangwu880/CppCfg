@@ -12,10 +12,14 @@ using namespace SimpleCfgLog;
 UNITTEST(build_cpp)
 {
 	test_cfg cfg;
+	
 	UNIT_ASSERT(cfg.LoadFile());
+	UNIT_INFO("cfg.a22.size()=%d", cfg.a22.size());
 
 	UNIT_ASSERT(cfg.a1 == 999999999999999333);
 	UNIT_ASSERT(cfg.a2 == "tt33");
+
+	UNIT_ASSERT(cfg.a22.size() == 2);
 	UNIT_ASSERT(cfg.a22[0] == 1);
 	UNIT_ASSERT(cfg.a22[1] == 2);
 

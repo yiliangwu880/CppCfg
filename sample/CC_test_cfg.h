@@ -13,7 +13,7 @@ struct test_cfg
 		struct S_b2
 		{
 			bool c1;
-			std::array<int16_t,2> c2;
+			std::vector<int16_t> c2;
 		};
 		uint16_t b1;
 		S_b2 b2;
@@ -21,15 +21,16 @@ struct test_cfg
 	struct S_a31
 	{
 		bool b1;
+		uint16_t b2;
 	};
 
 
 	////////////////////////define member list////////////////////////
 	uint64_t a1;
 	std::string a2;
-	std::array<uint16_t,2> a22;
+	std::vector<uint16_t> a22;
 	S_a3 a3;
-	std::array<S_a31,2> a31;
+	std::vector<S_a31> a31;
 	std::string dyn1;
 	std::string dyn2;
 
@@ -64,14 +65,22 @@ private:
 
 			a1 = js["a1"];
 			a2 = js["a2"];
-			a22[0] = js["a22"][0];
-			a22[1] = js["a22"][1];
+			for (size_t i = 0; i < js["a22"].size(); ++i)
+			{
+				a22.push_back(js["a22"][i]);
+			}
 			a3.b1 = js["a3"]["b1"];
 			a3.b2.c1 = js["a3"]["b2"]["c1"];
-			a3.b2.c2[0] = js["a3"]["b2"]["c2"][0];
-			a3.b2.c2[1] = js["a3"]["b2"]["c2"][1];
-			a31[0].b1 = js["a31"][0]["b1"];
-			a31[1].b1 = js["a31"][1]["b1"];
+			for (size_t i = 0; i < js["a3"]["b2"]["c2"].size(); ++i)
+			{
+				a3.b2.c2.push_back(js["a3"]["b2"]["c2"][i]);
+			}
+			for (size_t i = 0; i < js["a31"].size(); ++i)
+			{
+				a31.push_back({});
+				a31[i].b1 = js["a31"][i]["b1"];
+				a31[i].b2 = js["a31"][i]["b2"];
+			}
 			dyn1 = js["dyn1"].dump().c_str();
 			dyn2 = js["dyn2"].dump().c_str();
 

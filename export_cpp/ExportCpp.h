@@ -23,9 +23,12 @@ private:
 	//根据json,生成成员函数
 	static bool BuildMethod(const nlohmann::json &js, const std::string &file_name, std::string &cpp_str);
 	//根据json,生成成员赋值列表
+	//@js [in] 
+	//@cpp_str [out]
 	//@preName 前缀名， 比如： a.ab.c[0]
 	//@preName_js 前缀名， 比如： a["ab"]["c"][0]
-	static bool BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std::string preName, std::string preName_js);
+	//@int array_recursion_cnt  0表示非数组处理， >0表示数组处理，递归BuildAssignMem次数
+	static bool BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, const std::string &preName, const std::string &preName_js, int array_recursion_cnt= 0);
 	//根据json, 生成子类和成员
 	//比如:js格式： {n1=3,n2={a=3}}
 	//生成 uint32 n1; struct n2{uint32 a;};

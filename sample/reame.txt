@@ -2,3 +2,4 @@
 
 ）按CppCfg主目录说明编译通过
 ）运行脚本 build_cpp.sh. 生成cpp文件，编译运行测试。
+）复制linux的CC_test_cfg.h到win供参考

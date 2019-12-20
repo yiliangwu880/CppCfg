@@ -6,6 +6,6 @@ a3={b1=2, b2:{
 			c2:['a','b']
 			}
 	}
-a31=[{b1=false},{b1=true}]
+a31=[{b1=false, b2=1},{b1=true, b2=2}]
 dynamic dyn1 = 1
 dynamic dyn2 = { a="a",b=2,  b1 = [1,2] }

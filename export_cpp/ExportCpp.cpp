@@ -296,9 +296,14 @@ private:
 	return true;
 }
 
-bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std::string preName, std::string preName_js)
+bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, const std::string &preName, const std::string &preName_js, int array_recursion_cnt)
 {
 	//build member assign
+	if (array_recursion_cnt > 1)
+	{
+		Log("error, array_recursion_cnt:%d >1", array_recursion_cnt);
+		return false;
+	}
 	const string TAB = "			";
 	cpp_str.clear();
 	const json *dynArray = nullptr;
@@ -331,35 +336,50 @@ bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, std
 		if (mem.value().is_object())
 		{
 			string str;
-			BuildAssignMem(mem.value(), str, preName + mem.key() + ".", preName_js + "[\""+ mem.key() +"\"]");
+		
+			BuildAssignMem(mem.value(), str, preName + mem.key() + ".", preName_js + "[\"" + mem.key() + "\"]");
 			cpp_str += str;
 		}
 		else if (mem.value().is_array())//数组不能二维
 		{
 			const json &arr = mem.value();
-			for (uint32 i=0; i<arr.size(); ++i)
+
+
+			const json &el = arr[0];
+			cpp_str += "			for (size_t i = 0; i < ";
+			cpp_str += preName_js + "[\"" + mem.key() + "\"]";
+			cpp_str += ".size(); ++i)\n";
+			cpp_str += "			{\n";
+			if (el.is_array())
 			{
-				const json &el = arr[i];
-				if (el.is_array())
-				{
-					Log("error, array can't mult");
-					return false;
-				}
-				if (el.is_object())
-				{
-					string str;
-					BuildAssignMem(el, str, preName + mem.key() + "[" + NumToStr(i) + "].", preName_js + "[\"" + mem.key() + "\"]"+"[" + NumToStr(i) + "]");
-					cpp_str += str;
-				}
-				else
-				{
-					cpp_str += TAB + preName + mem.key() + "[" + NumToStr(i) + "]" + " = " + preName_js + "[\"" + mem.key() + "\"]"+"[" + NumToStr(i) + "]" + ";\n";
-				}
+				Log("error, array can't mult");
+				return false;
 			}
+			if (el.is_object())
+			{
+				string str;
+				cpp_str += "				" + preName + mem.key() + ".push_back({});\n";
+				string tab_preName = string("	") + preName;
+				BuildAssignMem(el, str, tab_preName + mem.key() + "[i].", preName_js + "[\"" + mem.key() + "\"]" + "[i]");
+				cpp_str += str;
+			}
+			else
+			{
+				cpp_str += "				" + preName + mem.key() + ".push_back(" + preName_js + "[\"" + mem.key() + "\"]" + "[i])" + ";\n";
+			}
+			cpp_str += "			}\n";
+
 		}
 		else
 		{
-			cpp_str += TAB + preName + mem.key() + " = " + preName_js+ "[\"" + mem.key() + "\"]" + ";\n";
+			if (1 == array_recursion_cnt)
+			{
+				cpp_str += TAB + preName + mem.key() + ".push_back(" + preName_js + "[\"" + mem.key() + "\"])" + ";\n";
+			}
+			else
+			{
+				cpp_str += TAB + preName + mem.key() + " = " + preName_js + "[\"" + mem.key() + "\"]" + ";\n";
+			}
 		}
 	}
 	return  true;
@@ -439,12 +459,12 @@ void JsToCpp::BuildSubClassAndMember(const nlohmann::json &js, string &str, stri
 
 				str += tab + "};\n";
 				//build member
-				mem_list += tab + "std::array<" + class_name + "," + NumToStr(mem.value().size()) + "> " + mem.key() + ";\n";
+				mem_list += tab + "std::vector<" + class_name + "> " + mem.key() + ";\n";
 			}
 			else
 			{
 				//build member
-				mem_list += tab + "std::array<"+(GetArrayCppType(mem.value())) + ","+ NumToStr(mem.value().size())+"> " + mem.key() + ";\n";
+				mem_list += tab + "std::vector<"+(GetArrayCppType(mem.value())) + "> " + mem.key() + ";\n";
 			}
 		}
 		else
