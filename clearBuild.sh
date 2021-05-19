@@ -5,4 +5,4 @@ mkdir -p Debug
 cd Debug
 rm -rf *
 cd ..
-./build.sh
+sh build.sh

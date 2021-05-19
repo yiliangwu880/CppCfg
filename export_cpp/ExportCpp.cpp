@@ -34,7 +34,7 @@ namespace
 		{
 			return -1;
 		}
-		for (int i=0; i<js.size(); ++i)
+		for (size_t i=0; i<js.size(); ++i)
 		{
 			if (js[i] == value)
 			{
