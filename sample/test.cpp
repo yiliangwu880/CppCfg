@@ -3,7 +3,7 @@
 #include "unit_test.h"
 #include <sstream>
 #include "stdafx.h"
-#include "CC_test_cfg.h"
+#include "test_cfg.h"
 
 using namespace std;
 using json = nlohmann::json;

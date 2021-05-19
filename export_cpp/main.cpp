@@ -150,7 +150,7 @@ void BuildCppFile(const char *fileName)
 	//build file
 	//Log("result: %s", cpp_str.c_str());
 	Log("prefixName: %s", prefixName.c_str());
-	Str2File(string("CC_")+prefixName + ".h", cpp_str);
+	Str2File(prefixName + ".h", cpp_str);
 }
 
 int main(int argc, char* argv[]) 
