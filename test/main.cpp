@@ -1,11 +1,11 @@
-// testPrj.cpp : å®šä¹‰æ§åˆ¶å°åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
+// testPrj.cpp : ¶¨Òå¿ØÖÆÌ¨Ó¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
 //
 
 #include "unit_test.h"
 #include <sstream>
 #include "json.hpp"
 #include <exception>
-#include "stdafx.h"
+
 using namespace std;
 using json = nlohmann::json;
 using namespace SimpleCfgLog;
