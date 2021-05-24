@@ -1,8 +1,9 @@
-// testPrj.cpp : ¶¨Òå¿ØÖÆÌ¨Ó¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
+// testPrj.cpp : å®šä¹‰æ§åˆ¶å°åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 //
 
 #include "unit_test.h"
 #include "SimpleCfg.h"
+#include "stdafx.h"
 //#include <sstream>
 //#include <exception>
 

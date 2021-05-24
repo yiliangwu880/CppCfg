@@ -32,6 +32,6 @@ ADD_library(crypto SHARED IMPORTED)
 target_link_libraries(${PRJ_NAME} dl)
 
 #cotire设置gcc的预编译头相关			
-set_target_properties(${PRJ_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire(${PRJ_NAME})
+#set_target_properties(${PRJ_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire(${PRJ_NAME})
 

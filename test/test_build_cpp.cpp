@@ -1,11 +1,11 @@
-//²âÊÔ SimpleCfg ½âÎö×Ö·û´®
+//æµ‹è¯• SimpleCfg è§£æå­—ç¬¦ä¸²
 
 #include "unit_test.h"
 #include <sstream>
 #include "json.hpp"
 #include <exception>
 #include "SimpleCfg.h"
-
+#include "stdafx.h"
 using namespace std;
 using namespace SimpleCfgLog;
 using json = nlohmann::json;
@@ -32,7 +32,7 @@ namespace {
 		string s1(cpp_str.begin(), cpp_str.begin() + cpp_str.size() / 2);
 		string s2(cpp_str.begin() + cpp_str.size() / 2, cpp_str.end());
 
-		UNIT_INFO("[%s", s1.c_str());//Ì«³¤£¬·Ö¿ª2²¿·Ö
+		UNIT_INFO("[%s", s1.c_str());//å¤ªé•¿ï¼Œåˆ†å¼€2éƒ¨åˆ†
 		UNIT_INFO("%s]", s2.c_str());
 	}
 	void test_error()
@@ -57,7 +57,7 @@ namespace {
 			SimpleCfg js;
 			UNIT_ASSERT(!js.ParseStr(TEST_STR));
 		}
-		//Êı×éÔªËØ²»Ò»ÖÂ
+		//æ•°ç»„å…ƒç´ ä¸ä¸€è‡´
 		{
 			const char *TEST_STR = R"(
 		a1=1
@@ -70,7 +70,7 @@ namespace {
 			string cpp_str;
 			JsToCpp::Build(js, "MyCfg", cpp_str);
 		}
-		//¶ÔÏóÄäÃû²»Ò»ÖÂ
+		//å¯¹è±¡åŒ¿åä¸ä¸€è‡´
 		{
 			const char *TEST_STR = R"(
 		a1=1
@@ -119,7 +119,7 @@ namespace {
 		)";
 			PrintClass(TEST_STR);
 		}
-		//¶¯Ì¬¶ÔÏó json
+		//åŠ¨æ€å¯¹è±¡ json
 		{
 			const char *TEST_STR = R"(
 		name33 =1;
