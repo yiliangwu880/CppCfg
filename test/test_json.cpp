@@ -41,7 +41,8 @@ UNITTEST(Json)
 	}
 	do 
 	{//异常
-		break; //不运行，给代码例子你看而已。
+		//不运行，给代码例子你看而已。
+		#if 0
 		try
 		{
 			json js = json::parse(
@@ -61,6 +62,7 @@ UNITTEST(Json)
 		{
 			UNIT_INFO("parse json fail");
 		}
+		#endif
 	} while (false);
 	{
 		json js;
