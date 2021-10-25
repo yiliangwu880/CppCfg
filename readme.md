@@ -28,7 +28,7 @@
 # 使用：
 	)编译
 	）根据你的项目配置，导出解析的h文件：
-		运行bin目录的export_cpp_cfg执行文件。比如：./export_cpp_cfg ../export_cpp/test_cfg.txt
+		运行bin目录的export_cpp_cfg执行文件。比如：./export_cpp_cfg ../export_cpp/test_cfg.txt 
 		成功会生成 test_cfg.h文件
 	）你的项目加入导出h文件和com目录的cpp文件。
 	）写代码读取配置。例子如下：
@@ -37,6 +37,7 @@
 		cfg.LoadFile();			//解析配置文件
 		uint64 read = cfg.a1;	//读取配置使用
 		
+    ) 如果多个配置，导出命令例子： ./export_cpp_cfg cfg1.txt cfg2.txt
 # -----------------------------以下详细说明------------------------------------------------------------
 目录结构：
 	sample			== 使用例子项目
