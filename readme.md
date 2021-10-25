@@ -29,11 +29,11 @@
 	)编译
 	）根据你的项目配置，导出解析的h文件：
 		运行bin目录的export_cpp_cfg执行文件。比如：./export_cpp_cfg ../export_cpp/test_cfg.txt
-		成功会生成 CC_test_cfg.h文件
+		成功会生成 test_cfg.h文件
 	）你的项目加入导出h文件和com目录的cpp文件。
 	）写代码读取配置。例子如下：
-		#include "CC_test_cfg.h"
-		test_cfg cfg;			//CC_test_cfg.h里面导出的类
+		#include "test_cfg.h"
+		test_cfg cfg;			//test_cfg.h里面导出的类
 		cfg.LoadFile();			//解析配置文件
 		uint64 read = cfg.a1;	//读取配置使用
 		
@@ -93,7 +93,7 @@
 	
 配置格式：
 	综合：
-			类型json,C语言命名风格， 比json更简化. 
+			类似json,C语言命名风格， 比json更简化. 
 			对象名不需要双引号。
 			直接上例子来说明：
 		合法格式：
