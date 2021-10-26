@@ -344,12 +344,19 @@ bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, con
 		{
 			const json &arr = mem.value();
 
+			string curIdxName = "i" + std::to_string(array_recursion_cnt);//for 循环用的的变量 i 改为 i0,i1,...
+			//string lastIdxName = "i" + std::to_string(array_recursion_cnt - 1); 
+			string tableStr; //for 循环语句的table数，为了代码整齐
+			for (int i = 0; i < array_recursion_cnt; i++)
+			{
+				tableStr += "	";
+			}
 
 			const json &el = arr[0];
-			cpp_str += "			for (size_t i = 0; i < ";
+			cpp_str += tableStr+"			for (size_t "+ curIdxName +" = 0; " + curIdxName + " < ";
 			cpp_str += preName_js + "[\"" + mem.key() + "\"]";
-			cpp_str += ".size(); ++i)\n";
-			cpp_str += "			{\n";
+			cpp_str += ".size(); ++" + curIdxName + ")\n";
+			cpp_str += tableStr + "			{\n";
 			if (el.is_array())
 			{
 				Log("error, array can't mult");
@@ -358,25 +365,25 @@ bool JsToCpp::BuildAssignMem(const nlohmann::json &js, std::string &cpp_str, con
 			if (el.is_object())
 			{
 				string str;
-				cpp_str += "				" + preName + mem.key() + ".push_back({});\n";
+				cpp_str += tableStr + "				" + preName + mem.key() + ".push_back({});\n";
 				string tab_preName = string("	") + preName;
-				BuildAssignMem(el, str, tab_preName + mem.key() + "[i].", preName_js + "[\"" + mem.key() + "\"]" + "[i]");
+				BuildAssignMem(el, str, tab_preName + mem.key() + "[" + curIdxName + "].", preName_js + "[\"" + mem.key() + "\"]" + "[" + curIdxName + "]", array_recursion_cnt+1);
 				cpp_str += str;
 			}
 			else
 			{
-				cpp_str += "				" + preName + mem.key() + ".push_back(" + preName_js + "[\"" + mem.key() + "\"]" + "[i])" + ";\n";
+				cpp_str += "				" + preName + mem.key() + ".push_back(" + preName_js + "[\"" + mem.key() + "\"]" + "[" + curIdxName + "])" + ";\n";
 			}
-			cpp_str += "			}\n";
+			cpp_str += tableStr + "			}\n";
 
 		}
 		else
 		{
-			if (1 == array_recursion_cnt)
-			{
-				cpp_str += TAB + preName + mem.key() + ".push_back(" + preName_js + "[\"" + mem.key() + "\"])" + ";\n";
-			}
-			else
+			//if (array_recursion_cnt >= 1 )
+			//{
+			//	cpp_str += TAB + preName + mem.key() + ".push_back(" + preName_js + "[\"" + mem.key() + "\"])" + ";\n";
+			//}
+			//else
 			{
 				cpp_str += TAB + preName + mem.key() + " = " + preName_js + "[\"" + mem.key() + "\"]" + ";\n";
 			}

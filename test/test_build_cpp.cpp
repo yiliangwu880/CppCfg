@@ -175,6 +175,18 @@ namespace {
 }
 UNITTEST(build_cpp)
 {
+	{
+		const char *TEST_STR = R"(
+ResLs=[
+	{//Gold
+		TalentRange=[0,0], //Ìì¸³·¶Î§,Ä¬ÈÏÎª 0,MaxTalentDef
+		b = 3,
+	},
+]
+
+		)";
+		PrintClass(TEST_STR);
+	}
 	return;
 	test_error();
 	TestBuildClassStr();
