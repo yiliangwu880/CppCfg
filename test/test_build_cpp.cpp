@@ -182,6 +182,15 @@ ResLs=[
 		TalentRange=[0,0], //天赋范围,默认为 0,MaxTalentDef
 		b = 3,
 	},
+	{
+		b=3,
+		TalentRange=[0,0], //天赋范围,默认为 0,MaxTalentDef
+		//ba = 3,
+	},
+	{
+ab = 3, //这里配置错的，目前导出检查不出来的
+		TalentRange=[0,0], //天赋范围,默认为 0,MaxTalentDef
+	},
 ]
 
 		)";

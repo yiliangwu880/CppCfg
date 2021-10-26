@@ -349,6 +349,7 @@ n3=0x10 * 1 / 0x2
 //测试json接口如何使用
 UNITTEST(parse_cfg)
 {
+	return;
 	t1();
 	testObjArray();
 	testDynamic();

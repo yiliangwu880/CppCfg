@@ -560,6 +560,32 @@ bool JsToCpp::IsEnableArray(const nlohmann::json &js)
 					return false;
 				}
 			}
+			if (js_1st.type() == nlohmann::detail::value_t::object)
+			{
+				if (js_1st.size() != member.size())
+				{
+					Log("error , SimpleCfg array element must be same type. member->member size is dif");
+					return false;
+				}
+				//member 成员不安配置文本 顺序排序，检查不出来
+				//auto iter = js_1st.begin();
+				//for (const json &subMember : member.)
+				//{
+				//	if (iter == js_1st.end())
+				//	{
+				//		Log("error , SimpleCfg array element must be same type. some have more member");
+				//		return false;
+				//	}
+				//	const json &subMember1st = *iter;
+				//	Log("subMember type %s", subMember.type_name());
+				//	if (subMember1st.type() != subMember.type())
+				//	{
+				//		Log("error , SimpleCfg array element must be same type");
+				//		return false;
+				//	}
+				//	++iter;
+				//}
+			}
 		}
 	}
 	return true;
